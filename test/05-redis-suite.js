@@ -7,11 +7,11 @@ define(['require'], function (require) {
 
   suites.push({
     name: "redis tests",
-    desc: "collection of basic redis-pool tests",
+    desc: "collection of basic redis-connection-pool tests",
     abortOnFail: true, // don't continue with further test suites if any tests in this suite fail
     setup: function (env, test) {
-      env.channel = "redis-pool-tests:";
-      env.redisPool = require('./../src/redis-pool')('redisPoolTests', {
+      env.channel = "redis-connection-pool-tests:";
+      env.redisPool = require('./../src/redis-connection-pool')('redisPoolTests', {
         HOST: '127.0.0.1',
         PORT: 6379,
         MAX_CLIENTS: 60,

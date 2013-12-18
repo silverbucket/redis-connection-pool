@@ -1,5 +1,5 @@
 /**
- * redis-pool.js
+ * redis-connection-pool.js
  *
  * copyright 2012-2013 Nick Jennings (https://github.com/silverbucket)
  *
@@ -8,7 +8,7 @@
  *
  * The latest version can be found here:
  *
- *   https://github.com/silverbucket/node-redis-pool
+ *   https://github.com/silverbucket/node-redis-connection-pool
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,7 +20,7 @@ var Q = require('q');
 var Pool = require('generic-pool').Pool;
 
 /**
- * Function: RedisPool
+ * Function: RedisConnectionPool
  *
  * A high-level redis management object. It manages a number of connections in
  * a pool, using them as needed and keeping all aspects of releasing active
@@ -52,9 +52,9 @@ var Pool = require('generic-pool').Pool;
  *
  * Returns:
  *
- *   A redisPool object
+ *   A RedisConnectionPool object
  */
-function RedisPool(uid, cfg) {
+function RedisConnectionPool(uid, cfg) {
   this.UID = (typeof uid ==='string') ? uid : this.UID + Math.floor((Math.random() * 99999) + 10000);
   this.DEBUG = (typeof cfg.DEBUG === 'boolean') ? cfg.DEBUG : this.DEBUG;
   this.HOST = (typeof cfg.HOST === 'string') ? cfg.HOST : this.HOST;
@@ -97,8 +97,8 @@ function RedisPool(uid, cfg) {
   redisCheck.apply(this, []);
   return this;
 }
-RedisPool.prototype = {
-  UID: 'redis-pool-',
+RedisConnectionPool.prototype = {
+  UID: 'redis-connection-pool-',
   DEBUG: false,
   HOST: '127.0.0.1',
   PORT: 6379,
@@ -118,7 +118,7 @@ RedisPool.prototype = {
  *   cb   - (function) - Callback function when the event is triggered.
  *
  */
-RedisPool.prototype.on = function(type, cb) {
+RedisConnectionPool.prototype.on = function(type, cb) {
   client = redis.createClient();
   client.on(type, cb);
 };
@@ -135,7 +135,7 @@ RedisPool.prototype.on = function(type, cb) {
  *   cb   - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.set = function (key, data, cb) {
+RedisConnectionPool.prototype.set = function (key, data, cb) {
   _setFuncs.apply(this, ['set', key, data, cb]);
 };
 
@@ -150,7 +150,7 @@ RedisPool.prototype.set = function (key, data, cb) {
  *   cb   - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.get = function (key, cb) {
+RedisConnectionPool.prototype.get = function (key, cb) {
   _getFuncs.apply(this, ['get', key, cb]);
 };
 
@@ -164,7 +164,7 @@ RedisPool.prototype.get = function (key, cb) {
  *   key  - (string) - The key of the value you wish to delete
  *
  */
-RedisPool.prototype.del = function (key) {
+RedisConnectionPool.prototype.del = function (key) {
   redisSingle.apply(this, ['del', key]);
 };
 
@@ -181,7 +181,7 @@ RedisPool.prototype.del = function (key) {
  *   cb    - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.hset = function (key, field, data, cb) {
+RedisConnectionPool.prototype.hset = function (key, field, data, cb) {
   _setFuncs.apply(this, ['hset', key, field, data, cb]);
 };
 
@@ -197,7 +197,7 @@ RedisPool.prototype.hset = function (key, field, data, cb) {
  *   cb    - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.hget = function (key, field, cb) {
+RedisConnectionPool.prototype.hget = function (key, field, cb) {
   _getFuncs.apply(this, ['hget', key, field, cb]);
 };
 
@@ -213,7 +213,7 @@ RedisPool.prototype.hget = function (key, field, cb) {
  *   cb    - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.rpush = function (key, data, cb) {
+RedisConnectionPool.prototype.rpush = function (key, data, cb) {
   _setFuncs.apply(this, ['rpush', key, data, cb]);
 };
 
@@ -229,7 +229,7 @@ RedisPool.prototype.rpush = function (key, data, cb) {
  *   cb    - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.lpush = function (key, data, cb) {
+RedisConnectionPool.prototype.lpush = function (key, data, cb) {
   _setFuncs.apply(this, ['lpush', key, data, cb]);
 };
 
@@ -244,7 +244,7 @@ RedisPool.prototype.lpush = function (key, data, cb) {
  *   cb    - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.blpop = function (key, cb) {
+RedisConnectionPool.prototype.blpop = function (key, cb) {
   _getFuncs.apply(this, ['blpop', key, cb]);
 };
 
@@ -259,7 +259,7 @@ RedisPool.prototype.blpop = function (key, cb) {
  *   cb    - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.brpop = function (key, cb) {
+RedisConnectionPool.prototype.brpop = function (key, cb) {
   _getFuncs.apply(this, ['brpop', key, cb]);
 };
 
@@ -274,24 +274,24 @@ RedisPool.prototype.brpop = function (key, cb) {
  *   cb   - (function) - Callback to be executed on completion
  *
  */
-RedisPool.prototype.clean = function (key, cb) {
-  console.log('redis-pool: clearing redis key ' + key);
+RedisConnectionPool.prototype.clean = function (key, cb) {
+  console.log('redis-connection-pool: clearing redis key ' + key);
   var client = redis.createClient();
   var self = this;
 
   client.keys(key, function (err, keys) {
     client.quit();
-    //console.log('redis-pool: keys ', keys);
+    //console.log('redis-connection-pool: keys ', keys);
     if ((keys) && (keys.forEach)) {
       keys.forEach(function (name, pos) {
-        console.log('redis-pool: deleting name ' + name);
+        console.log('redis-connection-pool: deleting name ' + name);
         self.del(name);
       });
     } else {
-      console.log('ERROR redis-pool: couldnt get keys list on key \''+key+'\': ', keys);
+      console.log('ERROR redis-connection-pool: couldnt get keys list on key \''+key+'\': ', keys);
     }
     if (err) {
-      console.log('ERROR redis-pool: failed clearing redis queue. '+err);
+      console.log('ERROR redis-connection-pool: failed clearing redis queue. '+err);
     }
     cb();
   });
@@ -318,13 +318,13 @@ function _setFuncs(funcName, key, field, data, cb) {
     field = null;
   }
   pool.acquire(function (err, client) {
-    console.log('redis-pool: ' + funcName + ' ID: ' + client.__name +
+    console.log('redis-connection-pool: ' + funcName + ' ID: ' + client.__name +
                 ' to key ' + key + ' field: '+ field + ' (func:'+typeof cb+') DATA: ', data);
     if (funcName === 'hset') {
       client[funcName](key, field, data, function (err, reply) {
         pool.release(client);
         if (err) {
-          console.log("ERROR redis-pool: " + funcName + ": " + err);
+          console.log("ERROR redis-connection-pool: " + funcName + ": " + err);
         }
         if (typeof cb === 'function') {
           cb(err, reply);
@@ -335,7 +335,7 @@ function _setFuncs(funcName, key, field, data, cb) {
       client[funcName](key, data, function (err, reply) {
         pool.release(client);
         if (err) {
-            console.error("ERROR redis-pool: " + funcName + ": " + err);
+            console.error("ERROR redis-connection-pool: " + funcName + ": " + err);
         }
         if (typeof cb === 'function') {
           cb(err, reply);
@@ -369,7 +369,7 @@ function _getFuncs(funcName, key, field, cb) {
     cb = field;
     field = null;
   }
-  console.log('redis-pool: getFuncs('+funcName+', '+key+', '+field+', '+typeof cb);
+  console.log('redis-connection-pool: getFuncs('+funcName+', '+key+', '+field+', '+typeof cb);
   pool.acquire(function (err, client) {
 
     if ((funcName === 'get') || (funcName === 'hgetall')) {
@@ -463,7 +463,7 @@ function redisBlockingGet(funcName, client, key, cb) {
 function redisCheck() {
   var q = Q.defer();
   var self = this;
-  console.log("redis-pool: checking redis connection at " + self.HOST + ':' + self.PORT);
+  console.log("redis-connection-pool: checking redis connection at " + self.HOST + ':' + self.PORT);
   var client = redis.createClient(self.PORT, self.HOST);
   try {
     client.on('error', function (err) {
@@ -488,16 +488,16 @@ function redisCheck() {
 
 
 
-var RedisPoolWrapper;
+var RedisConnectionPoolWrapper;
 (function () {
-  var redisPools = {};
-  RedisPoolWrapper = function (uid, cfg) {
-    if (typeof redisPools[uid] === 'object') {
-      return redisPools[uid];
+  var redisConnectionPools = {};
+  RedisConnectionPoolWrapper = function (uid, cfg) {
+    if (typeof redisConnectionPools[uid] === 'object') {
+      return redisConnectionPools[uid];
     } else {
-      var redisPool = new RedisPool(uid, cfg);
-      redisPools[redisPool.uid] = redisPool;
-      return redisPool;
+      var redisConnectionPool = new RedisConnectionPool(uid, cfg);
+      redisConnectionPools[redisConnectionPool.uid] = redisConnectionPool;
+      return redisConnectionPool;
     }
   };
 })();
@@ -510,5 +510,5 @@ module.exports = function (uid, cfg) {
     cfg = {};
   }
 
-  return RedisPoolWrapper(uid, cfg);
+  return RedisConnectionPoolWrapper(uid, cfg);
 };

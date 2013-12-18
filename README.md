@@ -1,10 +1,10 @@
-node-redis-pool
-===============
+node-redis-connection-pool
+==========================
 
 A node.js connection pool for Redis.
 
 ## About
-  node-redis-pool is high-level redis management object. It manages a number of
+  node-redis-connection-pool is high-level redis management object. It manages a number of
 connections in a pool, using them as needed and keeping all aspects of
 releasing active connections internal to the object, so the user does not need
 to worry about forgotten connections leaking memory and building up over time.
@@ -67,10 +67,10 @@ lpush(key, value, callback)
 
 
 ## API Documentation
-node-redis-pool uses NaturalDocs to generate API documentation, which can be
+node-redis-connection-pool uses NaturalDocs to generate API documentation, which can be
 viewed after cloning the repository, in the doc/ directory, using a web browser.
 
 
 ## License
 
-Licensed under the [AGPLv3](https://github.com/silverbucket/node-redis-pool/blob/master/LICENSE)
+Licensed under the [AGPLv3](https://github.com/silverbucket/node-redis-connection-pool/blob/master/LICENSE)
