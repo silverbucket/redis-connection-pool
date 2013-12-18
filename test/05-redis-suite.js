@@ -11,7 +11,7 @@ define(['require'], function (require) {
     abortOnFail: true, // don't continue with further test suites if any tests in this suite fail
     setup: function (env, test) {
       env.channel = "redis-pool-tests:";
-      env.redisPool = require('./../redis-pool')('redisPoolTests', {
+      env.redisPool = require('./../src/redis-pool')('redisPoolTests', {
         HOST: '127.0.0.1',
         PORT: 6379,
         MAX_CLIENTS: 60,

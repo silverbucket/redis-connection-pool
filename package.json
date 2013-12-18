@@ -15,7 +15,7 @@
     "name": "Nick Jennings",
     "email": "nick@silverbucket.net"
   },
-  "main": "./redis-pool.js",
+  "main": "./src/redis-pool.js",
   "scripts": {
     "test": "node_modules/.bin/teste"
   },
