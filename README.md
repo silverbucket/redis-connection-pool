@@ -1,7 +1,13 @@
 node-redis-pool
 ===============
 
-A node.js connection pool for Redis
+A node.js connection pool for Redis.
+
+## About
+  node-redis-pool is high-level redis management object. It manages a number of
+connections in a pool, using them as needed and keeping all aspects of
+releasing active connections internal to the object, so the user does not need
+to worry about forgotten connections leaking memory and building up over time.
 
 ## Installation
 
@@ -19,12 +25,12 @@ A node.js connection pool for Redis
 
 ## Implemented methods
 
-  * **get** 
+  * **get**
 ```
 get(channel, name, cb)
 ```
 
-  * **set** 
+  * **set**
 ```
 set(channel, name, value, callback)
 ```
@@ -34,7 +40,7 @@ set(channel, name, value, callback)
 hget(channel, key, name, callback)
 ```
 
-  * **hset** 
+  * **hset**
 ```
 hset(channel, key, name, value, callback)
 ```
