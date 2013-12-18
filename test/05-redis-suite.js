@@ -68,7 +68,77 @@ define(['require'], function (require) {
             test.assert(reply, 'bar');
           });
         }
-      }
+      },
+
+      {
+        desc: "#rpush",
+        run: function (env, test) {
+          env.redisPool.rpush(env.channel + 'testlist', 'foo', function (err, reply) {
+            test.assertAnd(err, null);
+            env.redisPool.rpush(env.channel + 'testlist', 'bar', function (err, reply) {
+              test.assertAnd(err, null);
+              env.redisPool.rpush(env.channel + 'testlist', 'baz', function (err, reply) {
+                test.assert(err, null);
+              });
+            });
+          });
+        }
+      },
+
+      {
+        desc: "#blpop",
+        run: function (env, test) {
+          env.redisPool.blpop(env.channel + 'testlist', function (err, reply) {
+            test.assertAnd(err, null);
+            test.assert(reply, [env.channel + 'testlist', 'foo']);
+          });
+        }
+      },
+
+      {
+        desc: "#brpop",
+        run: function (env, test) {
+          env.redisPool.brpop(env.channel + 'testlist', function (err, reply) {
+            test.assertAnd(err, null);
+            test.assert(reply, [env.channel + 'testlist', 'baz']);
+          });
+        }
+      },
+
+      {
+        desc: "#lpush",
+        run: function (env, test) {
+          env.redisPool.lpush(env.channel + 'testlist', 'foo', function (err, reply) {
+            test.assertAnd(err, null);
+            env.redisPool.lpush(env.channel + 'testlist', 'bar', function (err, reply) {
+              test.assertAnd(err, null);
+              env.redisPool.lpush(env.channel + 'testlist', 'baz', function (err, reply) {
+                test.assert(err, null);
+              });
+            });
+          });
+        }
+      },
+
+      {
+        desc: "#blpop",
+        run: function (env, test) {
+          env.redisPool.blpop(env.channel + 'testlist', function (err, reply) {
+            test.assertAnd(err, null);
+            test.assert(reply, [env.channel + 'testlist', 'baz']);
+          });
+        }
+      },
+
+      {
+        desc: "#brpop",
+        run: function (env, test) {
+          env.redisPool.brpop(env.channel + 'testlist', function (err, reply) {
+            test.assertAnd(err, null);
+            test.assert(reply, [env.channel + 'testlist', 'bar']);
+          });
+        }
+      },
 
     ]
   });

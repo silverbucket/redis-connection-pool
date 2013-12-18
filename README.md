@@ -17,8 +17,8 @@ to worry about forgotten connections leaking memory and building up over time.
 
     var redisPool = require('redis-pool')('myRedisPool');
 
-    redisPool.set('test-channel', 'foobar', function (err) {
-      redisPool.get('test-channel', function (err, reply) {
+    redisPool.set('test-key', 'foobar', function (err) {
+      redisPool.get('test-key', function (err, reply) {
         console.log(reply); // 'foobar'
       });
     });
@@ -27,27 +27,48 @@ to worry about forgotten connections leaking memory and building up over time.
 
   * **get**
 ```
-get(channel, name, cb)
+get(key, cb)
 ```
 
   * **set**
 ```
-set(channel, name, value, callback)
+set(key, value, callback)
 ```
 
   * **hget**
 ```
-hget(channel, key, name, callback)
+hget(key, field, callback)
 ```
 
   * **hset**
 ```
-hset(channel, key, name, value, callback)
+hset(key, field, value, callback)
 ```
+
+  * **brpop**
+```
+brpop(key, cb)
+```
+
+  * **blpop**
+```
+blpop(key, cb)
+```
+
+  * **rpush**
+```
+rpush(key, value, callback)
+```
+
+  * **lpush**
+```
+lpush(key, value, callback)
+```
+
 
 ## API Documentation
 node-redis-pool uses NaturalDocs to generate API documentation, which can be
-found [here](https://github.com/silverbucket/node-redis-pool/blob/master/doc/index.html))
+viewed after cloning the repository, in the doc/ directory, using a web browser.
 
 
 ## License

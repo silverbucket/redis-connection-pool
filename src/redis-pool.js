@@ -201,6 +201,79 @@ RedisPool.prototype.hget = function (key, field, cb) {
   _getFuncs.apply(this, ['hget', key, field, cb]);
 };
 
+/**
+ * Function: rpush
+ *
+ * Execute a redis RPUSH command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - The list key
+ *   data  - (string) - Value to assign to the list
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.rpush = function (key, data, cb) {
+  _setFuncs.apply(this, ['rpush', key, data, cb]);
+};
+
+/**
+ * Function: lpush
+ *
+ * Execute a redis LPUSH command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - The list key
+ *   data  - (string) - Value to assign to the list
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.lpush = function (key, data, cb) {
+  _setFuncs.apply(this, ['lpush', key, data, cb]);
+};
+
+/**
+ * Function: blpop
+ *
+ * Execute a redis BLPOP command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - The list key
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.blpop = function (key, cb) {
+  _getFuncs.apply(this, ['blpop', key, cb]);
+};
+
+/**
+ * Function: brpop
+ *
+ * Execute a redis BRPOP command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - The list key
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.brpop = function (key, cb) {
+  _getFuncs.apply(this, ['brpop', key, cb]);
+};
+
+/**
+ * Function: clean
+ *
+ * Clean the redis key namespace
+ *
+ * Parameters:
+ *
+ *   key  - (string) - The key of the value you wish to clear (can use wildcard *)
+ *   cb   - (function) - Callback to be executed on completion
+ *
+ */
 RedisPool.prototype.clean = function (key, cb) {
   console.log('redis-pool: clearing redis key ' + key);
   var client = redis.createClient();
