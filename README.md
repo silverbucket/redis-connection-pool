@@ -4,10 +4,11 @@ node-redis-connection-pool
 A node.js connection pool for Redis.
 
 ## About
-  node-redis-connection-pool is high-level redis management object. It manages a number of
-connections in a pool, using them as needed and keeping all aspects of
-releasing active connections internal to the object, so the user does not need
-to worry about forgotten connections leaking memory and building up over time.
+  node-redis-connection-pool is high-level redis management object. It manages
+a number of connections in a pool, using them as needed and keeping all aspects
+of releasing active connections internal to the object, so the user does not
+need to worry about forgotten connections leaking memory and building up over
+time.
 
 ## Installation
 

@@ -104,7 +104,9 @@ RedisConnectionPool.prototype = {
   PORT: 6379,
   MAX_CLIENTS: 30,
   BLOCKING_SUPPORT: true,
-  PERFORM_CHECKS: false
+  PERFORM_CHECKS: false,
+  VERSION_ARRAY: undefined,
+  VERSION_STRING: undefined
 };
 
 /**
@@ -492,12 +494,13 @@ function redisCheck() {
     });
     client.on('ready', function () {
       console.log('redis version: '+client.server_info.redis_version);
-      var v = client.server_info.versions;
-      if (v[0] < 2) {
+      self.VERSION_STRING = client.server_info.redis_version;
+      self.VERSION_ARRAY = client.server_info.versions;
+      if (self.VERSION_ARRAY[0] < 2) {
         self.BLOCKING_SUPPORT = false;
       }
       client.quit();
-      q.resolve(client.server_info.redis_version);
+      q.resolve(self.VERSION_STRING);
     });
   } catch (e) {
     q.reject('cannot connect to redis: ' + e);
