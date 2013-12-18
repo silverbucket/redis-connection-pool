@@ -7,6 +7,7 @@
  * See the LICENSE file for details.
  *
  * The latest version can be found here:
+ *
  *   https://github.com/silverbucket/node-redis-pool
  *
  * This program is distributed in the hope that it will be useful,
@@ -18,6 +19,36 @@ var redis = require('redis');
 var Q = require('q');
 var Pool = require('generic-pool').Pool;
 
+/**
+ * Function: RedisPool
+ *
+ * A high-level redis management object. It manages a number of connections in
+ * a pool, using them as needed and keeping all aspects of releasing active
+ * connections internal to the object, so the user does not need to worry about
+ * forgotten connections leaking memory and building up over time.
+ *
+ * Parameters:
+ *
+ *   uid - (string) - Unique identifer to retreive an existing instance from
+ *                    elsewhere in an application. If left undefined, one will
+ *                    be generate automatically and avaialble via the `UID`
+ *                    property of the returned object.
+ *
+ *   cfg - (object) - A series of configuration parameters to be optionally
+ *                    passed in and used during initialization of the object.
+ *
+ *          {
+ *            HOST: '127.0.0.1',
+ *            PORT: 6379,
+ *            MAX_CLIENTS: 30, // maximum number of clients the pool can grow to
+ *            PERFORM_CHECKS: true  // perform redis version check to to see if
+ *                                  // blocking push/pops can be used.
+ *          }
+ *
+ * Returns:
+ *
+ *   A redisPool object
+ */
 function RedisPool(uid, cfg) {
   this.UID = (typeof uid ==='string') ? uid : this.UID + Math.floor((Math.random() * 99999) + 10000);
   this.DEBUG = (typeof cfg.DEBUG === 'boolean') ? cfg.DEBUG : this.DEBUG;
@@ -71,46 +102,115 @@ RedisPool.prototype = {
   PERFORM_CHECKS: false
 };
 
+/**
+ * Function: on
+ *
+ * listen for redis events
+ *
+ * Parameters:
+ *
+ *   type - (string) - Type of event to listen for.
+ *   cb   - (function) - Callback function when the event is triggered.
+ *
+ */
 RedisPool.prototype.on = function(type, cb) {
   client = redis.createClient();
   client.on(type, cb);
 };
 
-RedisPool.prototype.set = function (channel, data, cb) {
-  _setFuncs.apply(this, ['set', channel, data, cb]);
+/**
+ * Function: set
+ *
+ * Execute a redis SET command
+ *
+ * Parameters:
+ *
+ *   key  - (string) - A key to assign value to
+ *   data - (string) - Value to assign to key
+ *   cb   - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.set = function (key, data, cb) {
+  _setFuncs.apply(this, ['set', key, data, cb]);
 };
 
-RedisPool.prototype.get = function (channel, cb) {
-  _getFuncs.apply(this, ['get', channel, cb]);
+/**
+ * Function: get
+ *
+ * Execute a redis GET command
+ *
+ * Parameters:
+ *
+ *   key  - (string) - The key of the value you wish to get
+ *   cb   - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.get = function (key, cb) {
+  _getFuncs.apply(this, ['get', key, cb]);
 };
 
+/**
+ * Function: del
+ *
+ * Execute a redis DEL command
+ *
+ * Parameters:
+ *
+ *   key  - (string) - The key of the value you wish to delete
+ *
+ */
 RedisPool.prototype.del = function (key) {
   redisSingle.apply(this, ['del', key]);
 };
 
-RedisPool.prototype.hset = function (channel, key, data, cb) {
-  _setFuncs.apply(this, ['hset', channel, key, data, cb]);
+/**
+ * Function: hset
+ *
+ * Execute a redis HSET command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - A key to assign the hash to
+ *   field - (string) - Name of the field to set
+ *   data  - (string) - Value to assign to hash
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.hset = function (key, field, data, cb) {
+  _setFuncs.apply(this, ['hset', key, field, data, cb]);
 };
 
-RedisPool.prototype.hget = function (channel, key, cb) {
-  _getFuncs.apply(this, ['hget', channel, key, cb]);
+/**
+ * Function: hget
+ *
+ * Execute a redis HGET command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - The key of the hash you wish to get
+ *   field - (string) - The field name to retrieve
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisPool.prototype.hget = function (key, field, cb) {
+  _getFuncs.apply(this, ['hget', key, field, cb]);
 };
 
-RedisPool.prototype.clean = function (channel, cb) {
-  console.log('redis-pool: clearing redis channel ' + channel);
+RedisPool.prototype.clean = function (key, cb) {
+  console.log('redis-pool: clearing redis key ' + key);
   var client = redis.createClient();
   var self = this;
 
-  client.keys(channel, function (err, keys) {
+  client.keys(key, function (err, keys) {
     client.quit();
     //console.log('redis-pool: keys ', keys);
     if ((keys) && (keys.forEach)) {
-      keys.forEach(function (key, pos) {
-        console.log('redis-pool: deleting key ' + key);
-        self.del(key);
+      keys.forEach(function (name, pos) {
+        console.log('redis-pool: deleting name ' + name);
+        self.del(name);
       });
     } else {
-      console.log('ERROR redis-pool: couldnt get keys list on channel \''+channel+'\': ', keys);
+      console.log('ERROR redis-pool: couldnt get keys list on key \''+key+'\': ', keys);
     }
     if (err) {
       console.log('ERROR redis-pool: failed clearing redis queue. '+err);
@@ -131,19 +231,19 @@ function redisSingle (funcName, key) {
 }
 
 
-function _setFuncs(funcName, chan, key, data, cb) {
+function _setFuncs(funcName, key, field, data, cb) {
   var pool = this.pool;
 
   if (typeof cb === 'undefined') {
     cb = data;
-    data = key;
-    key = null;
+    data = field;
+    field = null;
   }
   pool.acquire(function (err, client) {
     console.log('redis-pool: ' + funcName + ' ID: ' + client.__name +
-                ' to chan ' + chan + ' KEY: '+ key + ' (func:'+typeof cb+') DATA: ', data);
+                ' to key ' + key + ' field: '+ field + ' (func:'+typeof cb+') DATA: ', data);
     if (funcName === 'hset') {
-      client[funcName](chan, key, data, function (err, reply) {
+      client[funcName](key, field, data, function (err, reply) {
         pool.release(client);
         if (err) {
           console.log("ERROR redis-pool: " + funcName + ": " + err);
@@ -153,8 +253,8 @@ function _setFuncs(funcName, chan, key, data, cb) {
         }
       });
     } else if (funcName === 'set') {
-      //console.log('--- CHAN ('+typeof chan+'): ' + chan + ' DATA ('+typeof data+'): ', data);
-      client[funcName](chan, data, function (err, reply) {
+      //console.log('--- key ('+typeof key+'): ' + key + ' DATA ('+typeof data+'): ', data);
+      client[funcName](key, data, function (err, reply) {
         pool.release(client);
         if (err) {
             console.error("ERROR redis-pool: " + funcName + ": " + err);
@@ -166,11 +266,11 @@ function _setFuncs(funcName, chan, key, data, cb) {
     } else {
       // if ((typeof data === 'undefined') || (typeof data === 'function')) {
       //   cb = data;
-      //   data = key;
-      //   key = null;
+      //   data = field;
+      //   field = null;
       // }
-      //console.log('--- KEY ('+typeof key+'): '+key+' DATA ('+typeof data+'): ', data);
-      client[funcName](chan, data, function (err, reply) {
+      //console.log('--- field ('+typeof field+'): '+field+' DATA ('+typeof data+'): ', data);
+      client[funcName](key, data, function (err, reply) {
         pool.release(client);
         if (err) {
             console.error(" [util] set error: " + err);
@@ -184,38 +284,38 @@ function _setFuncs(funcName, chan, key, data, cb) {
 }
 
 
-function _getFuncs(funcName, chan, key, cb) {
+function _getFuncs(funcName, key, field, cb) {
   var pool = this.pool;
   var self = this;
-  if ((typeof key === 'function') && (typeof cb === 'undefined')) {
-    cb = key;
-    key = null;
+  if ((typeof field === 'function') && (typeof cb === 'undefined')) {
+    cb = field;
+    field = null;
   }
-  console.log('redis-pool: getFuncs('+funcName+', '+chan+', '+key+', '+typeof cb);
+  console.log('redis-pool: getFuncs('+funcName+', '+key+', '+field+', '+typeof cb);
   pool.acquire(function (err, client) {
 
     if ((funcName === 'get') || (funcName === 'hgetall')) {
-      redisGet.apply(self, [funcName, client, chan, cb]);
+      redisGet.apply(self, [funcName, client, key, cb]);
     } else if (funcName === 'blpop') {
-      redisBlockingGet.apply(self, ['blpop', client, chan, cb]);
+      redisBlockingGet.apply(self, ['blpop', client, key, cb]);
     } else if (funcName === 'brpop') {
-      redisBlockingGet.apply(self, ['brpop', client, chan, cb]);
+      redisBlockingGet.apply(self, ['brpop', client, key, cb]);
     } else if (funcName === 'hget') {
-      redisHashGet.apply(self, [client, chan, key, cb]);
+      redisHashGet.apply(self, [client, key, field, cb]);
     }
   });
 }
 
 // works for get and hgetall
-function redisGet(funcName, client, chan, cb) {
+function redisGet(funcName, client, key, cb) {
   var pool = this.pool;
-  //console.log('REDIS POOL: get ID: ' + client.__name + ' to chan ' + chan);
+  //console.log('REDIS POOL: get ID: ' + client.__name + ' to key ' + key);
   var responded = false;
-  client[funcName](chan, function (err, replies) {
+  client[funcName](key, function (err, replies) {
     responded = true;
     pool.release(client);
     if (err) {
-      console.log('ERROR: redis error ('+funcName+' '+chan+')', err);
+      console.log('ERROR: redis error ('+funcName+' '+key+')', err);
       cb(err, null);
     } else {
       cb(err, replies);
@@ -224,21 +324,21 @@ function redisGet(funcName, client, chan, cb) {
 
   setTimeout(function() {
     if (!responded) {
-      console.log('ERROR: redis.'+funcName+' never returned (5s), destroying connection. '+chan);
+      console.log('ERROR: redis.'+funcName+' never returned (5s), destroying connection. '+key);
       pool.destroy(client);
     }
   }, 5000);
 }
 
-function redisHashGet(client, chan, key, cb) {
+function redisHashGet(client, key, field, cb) {
   var pool = this.pool;
-  console.log('REDIS POOL: get ID: ' + client.__name + ' to chan ' + chan + ' KEY:' + key);
+  console.log('REDIS POOL: get ID: ' + client.__name + ' to key ' + key + ' field:' + key);
   var responded = false;
-  client.hget(chan, key, function (err, replies) {
+  client.hget(key, field, function (err, replies) {
     responded = true;
     pool.release(client);
     if (err) {
-      console.log('ERROR: redis error (hget '+chan+')', err);
+      console.log('ERROR: redis error (hget '+key+')', err);
       cb(err, null);
     } else {
       cb(err, replies);
@@ -247,17 +347,17 @@ function redisHashGet(client, chan, key, cb) {
 
   setTimeout(function() {
     if (!responded) {
-      console.log('ERROR: redis.hget never returned (5s), destroying connection. '+chan);
+      console.log('ERROR: redis.hget never returned (5s), destroying connection. '+key);
       pool.destroy(client);
     }
   }, 5000);
 }
 
-function redisBlockingGet(funcName, client, chan, cb) {
+function redisBlockingGet(funcName, client, key, cb) {
   var pool = this.pool;
-  //console.log(' [util] --- '+funcName+' ID: ' + client.__name + ' to chan ' + chan);
+  //console.log(' [util] --- '+funcName+' ID: ' + client.__name + ' to key ' + key);
   var responded = false;
-  client[funcName](chan, 0, function (err, replies) {
+  client[funcName](key, 0, function (err, replies) {
     responded = true;
     pool.release(client);
     if (err) {
@@ -276,7 +376,7 @@ function redisBlockingGet(funcName, client, chan, cb) {
   // setTimeout(function reportClient() {
   //   if (!responded) {
   //     minutes = minutes + 1;
-  //     console.log(' [util] still waiting '+minutes+'m ['+funcName+':'+client.__name+' '+chan+']');
+  //     console.log(' [util] still waiting '+minutes+'m ['+funcName+':'+client.__name+' '+key+']');
   //     setTimeout(reportClient, 60000);
   //   }
   // }, 60000);
@@ -325,8 +425,6 @@ var RedisPoolWrapper;
 })();
 
 module.exports = function (uid, cfg) {
-  //console.log('RedisPoolWrapper: '+typeof RedisPoolWrapper);
-
   if (typeof uid === 'object') {
     cfg = uid;
     uid = undefined;
