@@ -40,6 +40,11 @@ set(key, value, callback)
 hget(key, field, callback)
 ```
 
+  * **hgetall**
+```
+hgetall(key, callback)
+```
+
   * **hset**
 ```
 hset(key, field, value, callback)

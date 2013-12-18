@@ -71,6 +71,35 @@ define(['require'], function (require) {
       },
 
       {
+        desc: "#hset",
+        run: function (env, test) {
+          env.redisPool.hset(env.channel + 'testhash', 'foo', 'bar', function (err, reply) {
+            test.assertAnd(err, null);
+            env.redisPool.hset(env.channel + 'testhash', 'john', 'doe', function (err, reply) {
+              test.assertAnd(err, null);
+              env.redisPool.hset(env.channel + 'testhash', 'super', 'dong', function (err, reply) {
+                test.assertAnd(err, null);
+                env.redisPool.hset(env.channel + 'testhash', 'cau', 'sau', function (err, reply) {
+                  test.assert(err, null);
+                });
+              });
+            });
+          });
+        }
+      },
+
+      {
+        desc: "#hgetall",
+        run: function (env, test) {
+          env.redisPool.hget(env.channel + 'testhash', function (err, reply) {
+            test.assertAnd(err, null);
+            console.log('reply:', reply);
+            test.assert(reply, { foo: 'bar', john: 'doe', super: 'dong', cau: 'sau' });
+          });
+        }
+      },
+
+      {
         desc: "#rpush",
         run: function (env, test) {
           env.redisPool.rpush(env.channel + 'testlist', 'foo', function (err, reply) {

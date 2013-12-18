@@ -202,6 +202,21 @@ RedisConnectionPool.prototype.hget = function (key, field, cb) {
 };
 
 /**
+ * Function: hgetall
+ *
+ * Execute a redis HGETALL command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - The key of the hash you wish to get
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisConnectionPool.prototype.hgetall = function (key, cb) {
+  _getFuncs.apply(this, ['hgetall', key, cb]);
+};
+
+/**
  * Function: rpush
  *
  * Execute a redis RPUSH command
@@ -380,6 +395,8 @@ function _getFuncs(funcName, key, field, cb) {
       redisBlockingGet.apply(self, ['brpop', client, key, cb]);
     } else if (funcName === 'hget') {
       redisHashGet.apply(self, [client, key, field, cb]);
+    } else if (funcName === 'hgetall') {
+      redisHashGet.apply(self, [client, key, null, cb]);
     }
   });
 }
@@ -411,24 +428,27 @@ function redisGet(funcName, client, key, cb) {
 function redisHashGet(client, key, field, cb) {
   var pool = this.pool;
   //console.log('REDIS POOL: get ID: ' + client.__name + ' to key ' + key + ' field:' + key);
-  var responded = false;
-  client.hget(key, field, function (err, replies) {
-    responded = true;
-    pool.release(client);
-    if (err) {
-      console.log('ERROR: redis error (hget '+key+')', err);
-      cb(err, null);
-    } else {
-      cb(err, replies);
-    }
-  });
-
-  setTimeout(function() {
-    if (!responded) {
-      console.log('ERROR: redis.hget never returned (5s), destroying connection. '+key);
-      pool.destroy(client);
-    }
-  }, 5000);
+  if (field) {
+    client.hget(key, field, function (err, replies) {
+      pool.release(client);
+      if (err) {
+        console.log('ERROR: redis error (hget '+key+')', err);
+        cb(err, null);
+      } else {
+        cb(err, replies);
+      }
+    });
+  } else {
+    client.hgetall(key, function (err, replies) {
+      pool.release(client);
+      if (err) {
+        console.log('ERROR: redis error (hget '+key+')', err);
+        cb(err, null);
+      } else {
+        cb(err, replies);
+      }
+    });
+  }
 }
 
 function redisBlockingGet(funcName, client, key, cb) {
