@@ -314,7 +314,20 @@ RedisConnectionPool.prototype.clean = function (key, cb) {
   });
 };
 
-
+/**
+ * Function: check
+ *
+ * Performs a check on redis version and sets internal config based on support.
+ *
+ * This function is for compatibility checking, you don't normally need this.
+ *
+ * Returns:
+ *
+ *   promise which, on completion will return a version number as a string.
+ */
+RedisConnectionPool.prototype.check = function () {
+  redisCheck.apply(this, []);
+};
 
 function redisSingle (funcName, key) {
   var pool = this.pool;
