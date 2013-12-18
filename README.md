@@ -45,6 +45,10 @@ hget(channel, key, name, callback)
 hset(channel, key, name, value, callback)
 ```
 
+## API Documentation
+node-redis-pool uses NaturalDocs to generate API documentation, which can be
+found [here](https://github.com/silverbucket/node-redis-pool/blob/master/doc/index.html))
+
 
 ## License
 
