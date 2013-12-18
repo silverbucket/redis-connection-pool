@@ -37,13 +37,18 @@ var Pool = require('generic-pool').Pool;
  *   cfg - (object) - A series of configuration parameters to be optionally
  *                    passed in and used during initialization of the object.
  *
- *          {
- *            HOST: '127.0.0.1',
- *            PORT: 6379,
- *            MAX_CLIENTS: 30, // maximum number of clients the pool can grow to
- *            PERFORM_CHECKS: true  // perform redis version check to to see if
- *                                  // blocking push/pops can be used.
- *          }
+ *
+ *   cfg.HOST - (string) - Redis host (default: "127.0.0.1")
+ *
+ *   cfg.PORT - (number) - Redis port (default: 6379)
+ *
+ *   cfg.MAX_CLIENTS - (number) - Max clients alive in the connection pool at
+ *                                once. (default: 30)
+ *
+ *   cfg.PERFORM_CHECKS - (boolean) - Perform a series of redis checks,
+ *                                    currently this checks to to see if
+ *                                    blocking push/pops can be used.
+ *                                    (default: false)
  *
  * Returns:
  *

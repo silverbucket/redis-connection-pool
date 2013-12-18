@@ -22,6 +22,6 @@ BUILD_OPTIONS = -o baseUrl=src name=vendor/almond include=sockethub-client wrap.
 default: doc
 
 doc:
-	naturaldocs -i redis-pool.js -o html doc -p doc/.config
+	naturaldocs -i src/ -o html doc -p doc/.config
 
 .PHONY: default doc
