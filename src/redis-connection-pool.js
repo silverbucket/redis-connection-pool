@@ -318,8 +318,8 @@ function _setFuncs(funcName, key, field, data, cb) {
     field = null;
   }
   pool.acquire(function (err, client) {
-    console.log('redis-connection-pool: ' + funcName + ' ID: ' + client.__name +
-                ' to key ' + key + ' field: '+ field + ' (func:'+typeof cb+') DATA: ', data);
+    // console.log('redis-connection-pool: ' + funcName + ' ID: ' + client.__name +
+    //             ' to key ' + key + ' field: '+ field + ' (func:'+typeof cb+') DATA: ', data);
     if (funcName === 'hset') {
       client[funcName](key, field, data, function (err, reply) {
         pool.release(client);
@@ -335,7 +335,7 @@ function _setFuncs(funcName, key, field, data, cb) {
       client[funcName](key, data, function (err, reply) {
         pool.release(client);
         if (err) {
-            console.error("ERROR redis-connection-pool: " + funcName + ": " + err);
+            console.log("ERROR redis-connection-pool: " + funcName + ": " + err);
         }
         if (typeof cb === 'function') {
           cb(err, reply);
@@ -351,7 +351,7 @@ function _setFuncs(funcName, key, field, data, cb) {
       client[funcName](key, data, function (err, reply) {
         pool.release(client);
         if (err) {
-            console.error(" [util] set error: " + err);
+            console.log("ERROR redis-connection-pool: " + err);
         }
         if (typeof cb === 'function') {
           cb(err, reply);
@@ -369,7 +369,7 @@ function _getFuncs(funcName, key, field, cb) {
     cb = field;
     field = null;
   }
-  console.log('redis-connection-pool: getFuncs('+funcName+', '+key+', '+field+', '+typeof cb);
+  //console.log('redis-connection-pool: getFuncs('+funcName+', '+key+', '+field+', '+typeof cb);
   pool.acquire(function (err, client) {
 
     if ((funcName === 'get') || (funcName === 'hgetall')) {
@@ -410,7 +410,7 @@ function redisGet(funcName, client, key, cb) {
 
 function redisHashGet(client, key, field, cb) {
   var pool = this.pool;
-  console.log('REDIS POOL: get ID: ' + client.__name + ' to key ' + key + ' field:' + key);
+  //console.log('REDIS POOL: get ID: ' + client.__name + ' to key ' + key + ' field:' + key);
   var responded = false;
   client.hget(key, field, function (err, replies) {
     responded = true;
@@ -439,10 +439,10 @@ function redisBlockingGet(funcName, client, key, cb) {
     responded = true;
     pool.release(client);
     if (err) {
-      console.error(' [util] redis error (' + funcName + ')', err);
+      console.log('ERROR redis-connection-pool: (' + funcName + ')', err);
       cb(err, null);
     } else if ((!replies) || (typeof replies[1] === 'undefined')) {
-      console.error('[util] got a bad reply from redis: ', replies);
+      console.log('ERROR redis-connection-pool: got a bad reply: ', replies);
       cb('got bad reply from redis', []);
     } else {
       //console.log(funcName + ' received: ', replies);
