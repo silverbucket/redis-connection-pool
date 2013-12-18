@@ -1,4 +1,4 @@
-node-redis-connection-manager
-=============================
+node-redis-pool
+===============
 
-A node.js connection manager for Redis
+A node.js connection pool for Redis
