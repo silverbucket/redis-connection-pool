@@ -19,13 +19,14 @@
   "scripts": {
     "test": "node_modules/.bin/teste"
   },
-  "devDependencies": {
-    "teste": "*",
-  },
   "dependencies": {
     "generic-pool": "2.0.x",
-    "redis": "0.9.x"
-  }
+    "redis": "0.9.x",
+    "q": "0.9.x"
+  },
+  "devDependencies": {
+    "teste": "*"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/silverbucket/node-redis-pool.git"
