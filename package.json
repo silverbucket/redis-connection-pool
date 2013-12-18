@@ -1,0 +1,38 @@
+{
+  "name": "redis-pool",
+  "version": "0.0.1",
+  "description": "Redis client connection pool",
+  "license": "AGPL",
+  "private": false,
+  "keywords": [
+    "redis",
+    "database",
+    "connection",
+    "pool",
+    "manager"
+  ],
+  "author": {
+    "name": "Nick Jennings",
+    "email": "nick@silverbucket.net"
+  },
+  "main": "./redis-pool.js",
+  "scripts": {
+    "test": "node_modules/.bin/teste"
+  },
+  "devDependencies": {
+    "teste": "*",
+  },
+  "dependencies": {
+    "generic-pool": "2.0.x",
+    "redis": "0.9.x"
+  }
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/silverbucket/node-redis-pool.git"
+  },
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/silverbucekt/node-redis-pool/issues"
+  },
+  "homepage": "https://github.com/silverbucekt/node-redis-pool"
+}
