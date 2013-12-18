@@ -326,8 +326,11 @@ RedisConnectionPool.prototype.clean = function (key, cb) {
  *   promise which, on completion will return a version number as a string.
  */
 RedisConnectionPool.prototype.check = function () {
-  redisCheck.apply(this, []);
+  return redisCheck.apply(this, []);
 };
+
+
+
 
 function redisSingle (funcName, key) {
   var pool = this.pool;
@@ -337,7 +340,6 @@ function redisSingle (funcName, key) {
     });
   });
 }
-
 
 function _setFuncs(funcName, key, field, data, cb) {
   var pool = this.pool;
