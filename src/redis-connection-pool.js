@@ -500,7 +500,7 @@ function redisBlockingGet(funcName, client, key, cb) {
 function redisCheck() {
   var q = Q.defer();
   var self = this;
-  console.log("redis-connection-pool: checking redis connection at " + self.HOST + ':' + self.PORT);
+  //console.log("redis-connection-pool: checking redis connection at " + self.HOST + ':' + self.PORT);
   var client = redis.createClient(self.PORT, self.HOST);
   try {
     client.on('error', function (err) {
@@ -508,7 +508,7 @@ function redisCheck() {
       q.reject(err);
     });
     client.on('ready', function () {
-      console.log('redis version: '+client.server_info.redis_version);
+      //console.log('redis version: '+client.server_info.redis_version);
       self.VERSION_STRING = client.server_info.redis_version;
       self.VERSION_ARRAY = client.server_info.versions;
       if (self.VERSION_ARRAY[0] < 2) {
@@ -518,6 +518,7 @@ function redisCheck() {
       q.resolve(self.VERSION_STRING);
     });
   } catch (e) {
+    console.log('ERROR redis-connection-pool: cannot connect to redis, ' + e);
     q.reject('cannot connect to redis: ' + e);
     client.quit();
   }

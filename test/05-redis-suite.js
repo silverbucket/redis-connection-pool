@@ -41,6 +41,16 @@ define(['require'], function (require) {
       },
 
       {
+        desc: "#check()",
+        timeout: 2000,
+        run: function (env, test) {
+          env.redisPool.check().then(function (redis_version) {
+            test.assertType(redis_version, 'string');
+          });
+        }
+      },
+
+      {
         desc: "#set",
         timeout: 2000,
         run: function (env, test) {
