@@ -19,13 +19,25 @@ A node.js connection pool for Redis
 
 ## Implemented methods
 
-    **get** - `get('*channel*', '*name*', *cb*)`
+  * **get** 
+```
+get(channel, name, cb)
+```
 
-    **set** - `set('*channel*', '*name*', '*value*', *cb*)`
+  * **set** 
+```
+set(channel, name, value, callback)
+```
 
-    **hget** - `hget('*channel*', '*key*', '*name*', *cb*)`
+  * **hget**
+```
+hget(channel, key, name, callback)
+```
 
-    **hset** - `hset('*channel*', '*key*', *name*', '*value*', *cb*)`
+  * **hset** 
+```
+hset(channel, key, name, value, callback)
+```
 
 
 ## License
