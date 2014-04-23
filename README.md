@@ -12,11 +12,11 @@ time.
 
 ## Installation
 
-    npm install redis-pool
+    npm install redis-connection-pool
 
 ## Usage
 
-    var redisPool = require('redis-pool')('myRedisPool');
+    var redisPool = require('redis-connection-pool')('myRedisPool');
 
     redisPool.set('test-key', 'foobar', function (err) {
       redisPool.get('test-key', function (err, reply) {
