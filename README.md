@@ -36,6 +36,11 @@ get(key, cb)
 set(key, value, callback)
 ```
 
+  * **expire**
+```
+expire(key, value)
+```
+
   * **hget**
 ```
 hget(key, field, callback)

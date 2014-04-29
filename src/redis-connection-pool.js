@@ -126,6 +126,21 @@ RedisConnectionPool.prototype.on = function(type, cb) {
 };
 
 /**
+ * Function: expire
+ *
+ * Execute a redis EXPIRE command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - A key to assign value to
+ *   value - (number) - TTL in seconds
+ *
+ */
+RedisConnectionPool.prototype.expire = function (key, data) {
+  redisSingle.apply(this, ['expire', key, data]);
+};
+
+/**
  * Function: set
  *
  * Execute a redis SET command
@@ -332,12 +347,18 @@ RedisConnectionPool.prototype.check = function () {
 
 
 
-function redisSingle (funcName, key) {
+function redisSingle (funcName, key, val) {
   var pool = this.pool;
   pool.acquire(function (err, client) {
-    client[funcName](key, function () {
-      pool.release(client);
-    });
+    if (val) {
+      client[funcName](key, val, function () {
+        pool.release(client);
+      });
+    } else {
+      client[funcName](key, function () {
+        pool.release(client);
+      });
+    }
   });
 }
 
