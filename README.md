@@ -3,6 +3,11 @@ node-redis-connection-pool
 
 A node.js connection pool for Redis.
 
+[![Build Status](http://img.shields.io/travis/silverbucket/node-redis-connection-pool.svg?style=flat)](http://travis-ci.org/silverbucket/webfinger.js)
+[![Code Climate](http://img.shields.io/codeclimate/github/silverbucket/node-redis-connection-pool.svg?style=flat)](https://codeclimate.com/github/silverbucket/webfinger.js)
+[![license](https://img.shields.io/npm/l/node-redis-connection-pool.svg?style=flat)](https://npmjs.org/package/webfinger.js)
+[![downloads](http://img.shields.io/npm/dm/node-redis-connection-pool.svg?style=flat)](https://npmjs.org/package/webfinger.js)
+
 ## About
   node-redis-connection-pool is high-level redis management object. It manages
 a number of connections in a pool, using them as needed and keeping all aspects
