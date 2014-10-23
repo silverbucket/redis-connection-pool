@@ -17,67 +17,71 @@ time.
 
 ## Installation
 
-    npm install redis-connection-pool
+```javascript
+npm install redis-connection-pool
+```
 
 ## Usage
 
-    var redisPool = require('redis-connection-pool')('myRedisPool');
+```javascript
+var redisPool = require('redis-connection-pool')('myRedisPool');
 
-    redisPool.set('test-key', 'foobar', function (err) {
-      redisPool.get('test-key', function (err, reply) {
-        console.log(reply); // 'foobar'
-      });
-    });
+redisPool.set('test-key', 'foobar', function (err) {
+  redisPool.get('test-key', function (err, reply) {
+    console.log(reply); // 'foobar'
+  });
+});
+```
 
 ## Implemented methods
 
   * **get**
-```
+```javascript
 get(key, cb)
 ```
 
   * **set**
-```
+```javascript
 set(key, value, callback)
 ```
 
   * **expire**
-```
+```javascript
 expire(key, value)
 ```
 
   * **hget**
-```
+```javascript
 hget(key, field, callback)
 ```
 
   * **hgetall**
-```
+```javascript
 hgetall(key, callback)
 ```
 
   * **hset**
-```
+```javascript
 hset(key, field, value, callback)
 ```
 
   * **brpop**
-```
+```javascript
 brpop(key, cb)
 ```
 
   * **blpop**
-```
+```javascript
 blpop(key, cb)
 ```
 
   * **rpush**
-```
+```javascript
 rpush(key, value, callback)
 ```
 
   * **lpush**
-```
+```javascript
 lpush(key, value, callback)
 ```
 
