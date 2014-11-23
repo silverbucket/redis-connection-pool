@@ -46,7 +46,7 @@ Format: 1.52
 # --------------------------------------------------------------------------
 
 
-File: redis-pool.js  (redis-pool.js)
+File: redis-connection-pool.js  (redis-connection-pool.js)
 
 Group: Index  {
 
