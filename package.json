@@ -1,6 +1,6 @@
 {
   "name": "redis-connection-pool",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "a redis client connection pool",
   "license": "LGPL",
   "private": false,
@@ -37,5 +37,5 @@
   "bugs": {
     "url": "https://github.com/silverbucekt/node-redis-connection-pool/issues"
   },
-  "homepage": "https://github.com/silverbucekt/node-redis-connection-pool"
+  "homepage": "https://github.com/silverbucket/node-redis-connection-pool"
 }
