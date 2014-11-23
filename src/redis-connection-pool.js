@@ -436,6 +436,7 @@ function _getFuncs(funcName, key, field, cb) {
 // works for get and hgetall
 function redisGet(funcName, client, key, cb) {
   var responded = false;
+  var pool = this.pool;
   client[funcName](key, function (err, replies) {
     responded = true;
     pool.release(client);
