@@ -32,21 +32,21 @@ define(['require'], function (require) {
     tests: [
 
       {
-        desc: "verify version properties are set",
-        timeout: 2000,
-        run: function (env, test) {
-          test.assertTypeAnd(env.redisPool.VERSION_STRING, 'string');
-          test.assertType(env.redisPool.VERSION_ARRAY, 'object');
-        }
-      },
-
-      {
         desc: "#check()",
         timeout: 2000,
         run: function (env, test) {
           env.redisPool.check().then(function (redis_version) {
             test.assertType(redis_version, 'string');
           });
+        }
+      },
+
+      {
+        desc: "verify version properties are set",
+        timeout: 2000,
+        run: function (env, test) {
+          test.assertTypeAnd(env.redisPool.VERSION_STRING, 'string');
+          test.assertType(env.redisPool.VERSION_ARRAY, 'object');
         }
       },
 

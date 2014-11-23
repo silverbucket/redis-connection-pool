@@ -86,17 +86,18 @@ function RedisConnectionPool(uid, cfg) {
     log: this.DEBUG
   });
 
+  redisCheck.apply(this, []);
+
   if (self.DEBUG) {
     setTimeout(function poolStats() {
       // periodically report pool statistics
-      console.log('REDIS POOL: [size: ' + pool.getPoolSize() + 
-                  ' avail:' + pool.availableObjectsCount() + 
+      console.log('REDIS POOL: [size: ' + pool.getPoolSize() +
+                  ' avail:' + pool.availableObjectsCount() +
                   ' waiting:' + pool.waitingClientsCount() + ']');
       setTimeout(poolStats, 300000);
     }, 300000);
   }
 
-  redisCheck.apply(this, []);
   return this;
 }
 
@@ -340,7 +341,7 @@ RedisConnectionPool.prototype.clean = function (key, cb) {
  *
  * Returns:
  *
- *   promise which, on completion will return a version number as a string.
+ *   promise which, upon completion, will return a version number as a string.
  */
 RedisConnectionPool.prototype.check = function () {
   return redisCheck.apply(this, []);
