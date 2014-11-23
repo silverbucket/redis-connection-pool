@@ -1,6 +1,6 @@
 {
   "name": "redis-connection-pool",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "a redis client connection pool",
   "license": "LGPL",
   "private": false,
