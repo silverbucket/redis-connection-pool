@@ -93,8 +93,6 @@ viewed after cloning the repository, in the doc/ directory, using a web browser.
 
 ## License
 
-Licensed under the [AGPLv3](https://github.com/silverbucket/node-redis-connection-pool/blob/master/LICENSE)
+Licensed under the [LGPL](https://github.com/silverbucket/node-redis-connection-pool/blob/master/LICENSE)
 
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/silverbucket/node-redis-connectoin-pool/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
