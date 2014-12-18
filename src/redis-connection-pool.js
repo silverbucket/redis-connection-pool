@@ -3,7 +3,7 @@
  *
  * copyright 2012-2014 Nick Jennings (https://github.com/silverbucket)
  *
- * licensed under the LGPL.
+ * licensed under the MIT license.
  * See the LICENSE file for details.
  *
  * The latest version can be found here:
@@ -15,9 +15,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-var redis = require('redis');
-var Q = require('q');
-var Pool = require('generic-pool').Pool;
+var redis     = require('redis'),
+    Q         = require('q'),
+    Pool      = require('generic-pool').Pool,
+    debug     = require('debug')('redis-connection-pool');
 
 /**
  * Function: RedisConnectionPool
@@ -31,21 +32,21 @@ var Pool = require('generic-pool').Pool;
  *
  *   uid - (string) - Unique identifer to retreive an existing instance from
  *                    elsewhere in an application. If left undefined, one will
- *                    be generate automatically and avaialble via the `UID`
+ *                    be generate automatically and avaialble via the `uid`
  *                    property of the returned object.
  *
  *   cfg - (object) - A series of configuration parameters to be optionally
  *                    passed in and used during initialization of the object.
  *
  *
- *   cfg.HOST - (string) - Redis host (default: "127.0.0.1")
+ *   cfg.host - (string) - Redis host (default: "127.0.0.1")
  *
- *   cfg.PORT - (number) - Redis port (default: 6379)
+ *   cfg.port - (number) - Redis port (default: 6379)
  *
- *   cfg.MAX_CLIENTS - (number) - Max clients alive in the connection pool at
+ *   cfg.max_clients - (number) - Max clients alive in the connection pool at
  *                                once. (default: 30)
  *
- *   cfg.PERFORM_CHECKS - (boolean) - Perform a series of redis checks,
+ *   cfg.perform_checks - (boolean) - Perform a series of redis checks,
  *                                    currently this checks to to see if
  *                                    blocking push/pops can be used.
  *                                    (default: false)
@@ -55,24 +56,28 @@ var Pool = require('generic-pool').Pool;
  *   A RedisConnectionPool object
  */
 function RedisConnectionPool(uid, cfg) {
-  this.UID            = (typeof uid ==='string') ? uid : this.UID + Math.floor((Math.random() * 99999) + 10000);
-  this.DEBUG          = (typeof cfg.DEBUG === 'boolean') ? cfg.DEBUG : this.DEBUG;
-  this.HOST           = (typeof cfg.HOST === 'string') ? cfg.HOST : this.HOST;
-  this.PORT           = (typeof cfg.PORT === 'number') ? cfg.PORT : this.PORT;
-  this.MAX_CLIENTS    = (typeof cfg.MAX_CLIENTS === 'number') ? cfg.MAX_CLIENTS : this.MAX_CLIENTS;
-  this.PERFORM_CHECKS = (typeof cfg.PERFORM_CHECKS === 'boolean') ? cfg.PERFORM_CHECKS : this.PERFORM_CHECKS;
+  this.uid            = (typeof uid ==='string') ? uid : 'redis-connection-pool-' + Math.floor((Math.random() * 99999) + 10000);
+  this.host           = (typeof cfg.host === 'string') ? cfg.host : '127.0.0.1';
+  this.port           = (typeof cfg.port === 'number') ? cfg.port : 6379;
+  this.max_clients    = (typeof cfg.max_clients === 'number') ? cfg.max_clients : 30;
+  this.perform_checks = (typeof cfg.perform_checks === 'boolean') ? cfg.perform_checks : false;
+
+  this.blocking_support = true;
+  this.version_array    = undefined;
+  this.version_string   = undefined;
+
   var self = this;
 
   var i = 0;
   this.pool = Pool({
-    name: self.UID,
+    name: self.uid,
     create: function (callback) {
-      var client = redis.createClient(self.PORT, self.HOST);
-      client.__name = "client"+i;
+      var client = redis.createClient(self.port, self.host);
+      client.__name = "client" + i;
       i = i + 1;
 
       client.on('error', function (err) {
-        console.log('ERROR: '+err);
+        debug(err);
       });
 
       client.on('ready', function () {
@@ -82,36 +87,24 @@ function RedisConnectionPool(uid, cfg) {
     destroy: function (client) {
       return client.quit();
     },
-    max: self.MAX_CLIENTS,
-    log: this.DEBUG
+    max: self.max_clients,
+    log: false
   });
 
   redisCheck.apply(this, []);
 
-  if (self.DEBUG) {
-    setTimeout(function poolStats() {
-      // periodically report pool statistics
-      console.log('REDIS POOL: [size: ' + pool.getPoolSize() +
-                  ' avail:' + pool.availableObjectsCount() +
-                  ' waiting:' + pool.waitingClientsCount() + ']');
-      setTimeout(poolStats, 300000);
-    }, 300000);
-  }
+  setTimeout(function poolStats() {
+    // periodically report pool statistics
+    debug('REDIS POOL: [size: ' + pool.getPoolSize() +
+                ' avail:' + pool.availableObjectsCount() +
+                ' waiting:' + pool.waitingClientsCount() + ']');
+    setTimeout(poolStats, 300000);
+  }, 300000);
 
   return this;
 }
 
-RedisConnectionPool.prototype = {
-  UID: 'redis-connection-pool-',
-  DEBUG: false,
-  HOST: '127.0.0.1',
-  PORT: 6379,
-  MAX_CLIENTS: 30,
-  BLOCKING_SUPPORT: true,
-  PERFORM_CHECKS: false,
-  VERSION_ARRAY: undefined,
-  VERSION_STRING: undefined
-};
+
 
 /**
  * Function: on
@@ -311,7 +304,7 @@ RedisConnectionPool.prototype.brpop = function (key, cb) {
  *
  */
 RedisConnectionPool.prototype.clean = function (key, cb) {
-  console.log('redis-connection-pool: clearing redis key ' + key);
+  debug('`clearing redis key ' + key);
   var client = redis.createClient();
   var self = this;
 
@@ -319,14 +312,14 @@ RedisConnectionPool.prototype.clean = function (key, cb) {
     client.quit();
     if ((keys) && (keys.forEach)) {
       keys.forEach(function (name, pos) {
-        console.log('redis-connection-pool: deleting name ' + name);
+        debug('redis-connection-pool: deleting name ' + name);
         self.del(name);
       });
     } else {
-      console.log('ERROR redis-connection-pool: couldnt get keys list on key \'' + key + '\': ', keys);
+      debug('ERROR couldnt get keys list on key \'' + key + '\': ', keys);
     }
     if (err) {
-      console.log('ERROR redis-connection-pool: failed clearing redis queue. ' + err);
+      debug('ERROR failed clearing redis queue. ' + err);
     }
     cb();
   });
@@ -374,12 +367,13 @@ function _setFuncs(funcName, key, field, data, cb) {
     data = field;
     field = null;
   }
+
   pool.acquire(function (err, client) {
     if (funcName === 'hset') {
       client[funcName](key, field, data, function (err, reply) {
         pool.release(client);
         if (err) {
-          console.log("ERROR redis-connection-pool: " + funcName + ": " + err);
+          debug("ERROR " + funcName + ": " + err);
         }
         if (typeof cb === 'function') {
           cb(err, reply);
@@ -389,7 +383,7 @@ function _setFuncs(funcName, key, field, data, cb) {
       client[funcName](key, data, function (err, reply) {
         pool.release(client);
         if (err) {
-            console.log("ERROR redis-connection-pool: " + funcName + ": " + err);
+            debug("ERROR " + funcName + ": " + err);
         }
         if (typeof cb === 'function') {
           cb(err, reply);
@@ -399,7 +393,7 @@ function _setFuncs(funcName, key, field, data, cb) {
       client[funcName](key, data, function (err, reply) {
         pool.release(client);
         if (err) {
-            console.log("ERROR redis-connection-pool: " + err);
+            debug("ERROR " + err);
         }
         if (typeof cb === 'function') {
           cb(err, reply);
@@ -442,7 +436,7 @@ function redisGet(funcName, client, key, cb) {
     responded = true;
     pool.release(client);
     if (err) {
-      console.log('ERROR: redis error (' + funcName + ' ' + key + ')', err);
+      debug('ERROR: redis error (' + funcName + ' ' + key + ')', err);
       cb(err, null);
     } else {
       cb(err, replies);
@@ -451,7 +445,7 @@ function redisGet(funcName, client, key, cb) {
 
   setTimeout(function() {
     if (!responded) {
-      console.log('ERROR: redis.' + funcName+' never returned (5s), destroying connection. ' + key);
+      debug('ERROR: redis.' + funcName+' never returned (5s), destroying connection. ' + key);
       pool.destroy(client);
     }
   }, 5000);
@@ -464,7 +458,7 @@ function redisHashGet(client, key, field, cb) {
     client.hget(key, field, function (err, replies) {
       pool.release(client);
       if (err) {
-        console.log('ERROR: redis error (hget ' + key + ')', err);
+        debug('ERROR: redis error (hget ' + key + ')', err);
         cb(err, null);
       } else {
         cb(err, replies);
@@ -474,7 +468,7 @@ function redisHashGet(client, key, field, cb) {
     client.hgetall(key, function (err, replies) {
       pool.release(client);
       if (err) {
-        console.log('ERROR: redis error (hget ' + key + ')', err);
+        debug('ERROR: redis error (hget ' + key + ')', err);
         cb(err, null);
       } else {
         cb(err, replies);
@@ -491,10 +485,10 @@ function redisBlockingGet(funcName, client, key, cb) {
     responded = true;
     pool.release(client);
     if (err) {
-      console.log('ERROR redis-connection-pool: (' + funcName + ')', err);
+      debug('ERROR (' + funcName + ')', err);
       cb(err, null);
     } else if ((!replies) || (typeof replies[1] === 'undefined')) {
-      console.log('ERROR redis-connection-pool: got a bad reply: ', replies);
+      debug('ERROR got a bad reply: ', replies);
       cb('got bad reply from redis', []);
     } else {
       cb(err, replies);
@@ -506,23 +500,23 @@ function redisBlockingGet(funcName, client, key, cb) {
 function redisCheck() {
   var q = Q.defer();
   var self = this;
-  var client = redis.createClient(self.PORT, self.HOST);
+  var client = redis.createClient(self.port, self.host);
   try {
     client.on('error', function (err) {
       client.quit();
       q.reject(err);
     });
     client.on('ready', function () {
-      self.VERSION_STRING = client.server_info.redis_version;
-      self.VERSION_ARRAY = client.server_info.versions;
-      if (self.VERSION_ARRAY[0] < 2) {
-        self.BLOCKING_SUPPORT = false;
+      self.version_string = client.server_info.redis_version;
+      self.version_array = client.server_info.versions;
+      if (self.version_array[0] < 2) {
+        self.blocking_support = false;
       }
       client.quit();
-      q.resolve(self.VERSION_STRING);
+      q.resolve(self.version_string);
     });
   } catch (e) {
-    console.log('ERROR redis-connection-pool: cannot connect to redis, ' + e);
+    debug('ERROR cannot connect to redis, ' + e);
     q.reject('cannot connect to redis: ' + e);
     client.quit();
   }

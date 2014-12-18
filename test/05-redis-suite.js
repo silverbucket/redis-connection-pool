@@ -12,13 +12,13 @@ define(['require'], function (require) {
     setup: function (env, test) {
       env.channel = "redis-connection-pool-tests:";
       env.redisPool = require('./../src/redis-connection-pool')('redisPoolTests', {
-        HOST: '127.0.0.1',
-        PORT: 6379,
-        MAX_CLIENTS: 60,
-        PERFORM_CHECKS: true
+        host: '127.0.0.1',
+        port: 6379,
+        max_clients: 60,
+        perform_checks: true
       });
       test.assertTypeAnd(env.redisPool, 'object');
-      test.assertAnd(env.redisPool.UID, 'redisPoolTests');
+      test.assertAnd(env.redisPool.uid, 'redisPoolTests');
       env.redisPool.clean(env.channel + '*', function () {
         test.result(true);
       });
@@ -45,8 +45,8 @@ define(['require'], function (require) {
         desc: "verify version properties are set",
         timeout: 2000,
         run: function (env, test) {
-          test.assertTypeAnd(env.redisPool.VERSION_STRING, 'string');
-          test.assertType(env.redisPool.VERSION_ARRAY, 'object');
+          test.assertTypeAnd(env.redisPool.version_string, 'string');
+          test.assertType(env.redisPool.version_array, 'object');
         }
       },
 
