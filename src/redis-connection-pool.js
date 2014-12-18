@@ -304,7 +304,7 @@ RedisConnectionPool.prototype.brpop = function (key, cb) {
  *
  */
 RedisConnectionPool.prototype.clean = function (key, cb) {
-  debug('`clearing redis key ' + key);
+  debug('clearing redis key ' + key);
   var client = redis.createClient();
   var self = this;
 
@@ -312,7 +312,7 @@ RedisConnectionPool.prototype.clean = function (key, cb) {
     client.quit();
     if ((keys) && (keys.forEach)) {
       keys.forEach(function (name, pos) {
-        debug('redis-connection-pool: deleting name ' + name);
+        debug('deleting name ' + name);
         self.del(name);
       });
     } else {
