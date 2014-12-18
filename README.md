@@ -24,7 +24,12 @@ npm install redis-connection-pool
 ## Usage
 
 ```javascript
-var redisPool = require('redis-connection-pool')('myRedisPool');
+var redisPool = require('redis-connection-pool')('myRedisPool',{
+    host: '127.0.0.1', //default
+    port: 6379, //default
+    max_clients: 30, //defalut
+    perform_checks: false //checks for needed push/pop functionality
+  });
 
 redisPool.set('test-key', 'foobar', function (err) {
   redisPool.get('test-key', function (err, reply) {
@@ -87,12 +92,12 @@ lpush(key, value, callback)
 
 
 ## API Documentation
-node-redis-connection-pool uses NaturalDocs to generate API documentation, which can be
-viewed after cloning the repository, in the doc/ directory, using a web browser.
+node-redis-connection-pool uses NaturalDocs to generate API documentation, which can be viewed after cloning the repository, in the doc/ directory, using a web browser.
 
 
 ## License
 
-Licensed under the [LGPL](https://github.com/silverbucket/node-redis-connection-pool/blob/master/LICENSE)
+[MIT](https://github.com/silverbucket/node-redis-connection-pool/blob/master/LICENSE)
+
 
 
