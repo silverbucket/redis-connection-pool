@@ -93,13 +93,13 @@ function RedisConnectionPool(uid, cfg) {
 
   redisCheck.apply(this, []);
 
-  setTimeout(function poolStats() {
+  setTimeout(function poolStats(pool) {
     // periodically report pool statistics
     debug('REDIS POOL: [size: ' + pool.getPoolSize() +
                 ' avail:' + pool.availableObjectsCount() +
                 ' waiting:' + pool.waitingClientsCount() + ']');
-    setTimeout(poolStats, 300000);
-  }, 300000);
+    setTimeout(poolStats, 300000, pool);
+  }, 300000, this.pool);
 
   return this;
 }
