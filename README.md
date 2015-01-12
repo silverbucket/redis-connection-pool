@@ -1,4 +1,4 @@
-The fact node-redis-connection-pool
+node-redis-connection-pool
 ==========================
 
 A node.js connection pool for Redis.
