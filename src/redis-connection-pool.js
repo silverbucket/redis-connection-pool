@@ -61,6 +61,7 @@ function RedisConnectionPool(uid, cfg) {
   this.port           = (typeof cfg.port === 'number') ? cfg.port : 6379;
   this.max_clients    = (typeof cfg.max_clients === 'number') ? cfg.max_clients : 30;
   this.perform_checks = (typeof cfg.perform_checks === 'boolean') ? cfg.perform_checks : false;
+  this.options        = (typeof cfg.options === 'object') ? cfg.options : null;
 
   this.blocking_support = true;
   this.version_array    = undefined;
@@ -72,7 +73,7 @@ function RedisConnectionPool(uid, cfg) {
   this.pool = Pool({
     name: self.uid,
     create: function (callback) {
-      var client = redis.createClient(self.port, self.host);
+      var client = redis.createClient(self.port, self.host, self.options);
       client.__name = "client" + i;
       i = i + 1;
 

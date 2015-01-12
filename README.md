@@ -28,7 +28,10 @@ var redisPool = require('redis-connection-pool')('myRedisPool',{
     host: '127.0.0.1', //default
     port: 6379, //default
     max_clients: 30, //defalut
-    perform_checks: false //checks for needed push/pop functionality
+    perform_checks: false, //checks for needed push/pop functionality
+    options: {
+      auth_pass: 'password'
+    } //options for createClient of node-redis, optional
   });
 
 redisPool.set('test-key', 'foobar', function (err) {
