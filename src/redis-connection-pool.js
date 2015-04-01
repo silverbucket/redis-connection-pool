@@ -139,6 +139,21 @@ RedisConnectionPool.prototype.expire = function (key, data) {
 };
 
 /**
+ * Function: ttl
+ *
+ * Execute a redis TTL command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - A key to assign value to
+ *   value - (number) - TTL in seconds
+ *
+ */
+RedisConnectionPool.prototype.ttl = function (key, cb) {
+  _getFuncs.apply(this, ['get', key, cb]);
+};
+
+/**
  * Function: set
  *
  * Execute a redis SET command
