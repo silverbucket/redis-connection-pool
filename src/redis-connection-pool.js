@@ -150,7 +150,7 @@ RedisConnectionPool.prototype.expire = function (key, data) {
  *
  */
 RedisConnectionPool.prototype.ttl = function (key, cb) {
-  _getFuncs.apply(this, ['get', key, cb]);
+  _getFuncs.apply(this, ['ttl', key, cb]);
 };
 
 /**
