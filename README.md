@@ -9,11 +9,10 @@ A node.js connection pool for Redis.
 [![downloads](http://img.shields.io/npm/dm/redis-connection-pool.svg?style=flat)](https://npmjs.org/package/redis-connection-pool)
 
 ## About
-  node-redis-connection-pool is high-level redis management object. It manages
+  node-redis-connection-pool is a high-level redis management object. It manages
 a number of connections in a pool, using them as needed and keeping all aspects
 of releasing active connections internal to the object, so the user does not
-need to worry about forgotten connections leaking memory and building up over
-time.
+need to worry about forgotten connections leaking resources.
 
 ## Installation
 
@@ -24,11 +23,12 @@ npm install redis-connection-pool
 ## Usage
 
 ```javascript
-var redisPool = require('redis-connection-pool')('myRedisPool',{
-    host: '127.0.0.1', //default
+var redisPool = require('redis-connection-pool')('myRedisPool', {
+    host: '127.0.0.1', // default
     port: 6379, //default
-    max_clients: 30, //defalut
-    perform_checks: false, //checks for needed push/pop functionality
+    max_clients: 30, // defalut
+    perform_checks: false, // checks for needed push/pop functionality
+    database: 0, // database number to use
     options: {
       auth_pass: 'password'
     } //options for createClient of node-redis, optional

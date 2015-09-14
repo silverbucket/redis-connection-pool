@@ -1,7 +1,7 @@
 /**
  * redis-connection-pool.js
  *
- * copyright 2012-2014 Nick Jennings (https://github.com/silverbucket)
+ * copyright 2012-2015 Nick Jennings (https://github.com/silverbucket)
  *
  * licensed under the MIT license.
  * See the LICENSE file for details.
@@ -51,6 +51,9 @@ var redis     = require('redis'),
  *                                    blocking push/pops can be used.
  *                                    (default: false)
  *
+ *   cfg.database - (number) - if you prefer a specific database number for this
+ *                             pool, you can specify that here (default: 0)
+ *
  * Returns:
  *
  *   A RedisConnectionPool object
@@ -62,6 +65,7 @@ function RedisConnectionPool(uid, cfg) {
   this.max_clients    = (typeof cfg.max_clients === 'number') ? cfg.max_clients : 30;
   this.perform_checks = (typeof cfg.perform_checks === 'boolean') ? cfg.perform_checks : false;
   this.options        = (typeof cfg.options === 'object') ? cfg.options : null;
+  this.database       = (typeof cfg.database === 'number') ? cfg.database : 0;
 
   this.blocking_support = true;
   this.version_array    = undefined;
@@ -77,12 +81,18 @@ function RedisConnectionPool(uid, cfg) {
       client.__name = "client" + i;
       i = i + 1;
 
+      self.database = self.database || 0;
+
+      debug('selecting database ' + self.database);
       client.on('error', function (err) {
         debug(err);
       });
-
+      
       client.on('ready', function () {
-        callback(null, client);
+        client.select(self.database, function (err) {
+          debug('2. selected database: ' + client.selected_db);
+          callback(null, client);
+        });
       });
     },
     destroy: function (client) {
@@ -122,6 +132,25 @@ RedisConnectionPool.prototype.on = function(type, cb) {
   client = redis.createClient();
   client.on(type, cb);
 };
+
+/**
+ * Function: serverInfo
+ *
+ * Get server info
+ *
+ * Parameters: none
+ *
+ */
+RedisConnectionPool.prototype.serverInfo = function (cb) {
+  var pool = this.pool;
+  pool.acquire(function (err, client) {
+    var serverInfo = client.server_info;
+    serverInfo.database = client.selected_db;
+    pool.release(client);
+    cb(null, serverInfo);
+  });
+};
+
 
 /**
  * Function: expire
