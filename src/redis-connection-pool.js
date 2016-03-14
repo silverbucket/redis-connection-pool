@@ -164,7 +164,7 @@ RedisConnectionPool.prototype.serverInfo = function (cb) {
  *
  */
 RedisConnectionPool.prototype.expire = function (key, data, cb) {
-  redisSingle.apply(this, ['expire', key, data]);
+  redisSingle.apply(this, ['expire', key, data, cb]);
 };
 
 /**
@@ -209,7 +209,7 @@ RedisConnectionPool.prototype.get = function (key, cb) {
  *
  */
 RedisConnectionPool.prototype.del = function (key, cb) {
-  redisSingle.apply(this, ['del', key]);
+  redisSingle.apply(this, ['del', key, cb]);
 };
 
 /**
@@ -375,6 +375,9 @@ RedisConnectionPool.prototype.check = function () {
 
 function redisSingle (funcName, key, val, cb) {
   var pool = this.pool;
+  if (typeof val === 'function') {
+    cb = val;
+  }
   pool.acquire(function (err, client) {
     if (val) {
       client[funcName](key, val, function (err, reply) {
