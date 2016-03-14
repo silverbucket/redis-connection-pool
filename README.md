@@ -55,7 +55,12 @@ set(key, value, callback)
 
   * **expire**
 ```javascript
-expire(key, value)
+expire(key, value, callback)
+```
+
+  * **del**
+```javascript
+del(key, callback)
 ```
 
   * **hget**
