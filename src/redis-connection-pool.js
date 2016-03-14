@@ -163,7 +163,7 @@ RedisConnectionPool.prototype.serverInfo = function (cb) {
  *   value - (number) - TTL in seconds
  *
  */
-RedisConnectionPool.prototype.expire = function (key, data) {
+RedisConnectionPool.prototype.expire = function (key, data, cb) {
   redisSingle.apply(this, ['expire', key, data]);
 };
 
@@ -208,7 +208,7 @@ RedisConnectionPool.prototype.get = function (key, cb) {
  *   key  - (string) - The key of the value you wish to delete
  *
  */
-RedisConnectionPool.prototype.del = function (key) {
+RedisConnectionPool.prototype.del = function (key, cb) {
   redisSingle.apply(this, ['del', key]);
 };
 
@@ -373,16 +373,22 @@ RedisConnectionPool.prototype.check = function () {
 
 
 
-function redisSingle (funcName, key, val) {
+function redisSingle (funcName, key, val, cb) {
   var pool = this.pool;
   pool.acquire(function (err, client) {
     if (val) {
-      client[funcName](key, val, function () {
+      client[funcName](key, val, function (err, reply) {
         pool.release(client);
+        if (typeof cb === 'function') {
+          cb(err, reply);
+        }
       });
     } else {
-      client[funcName](key, function () {
+      client[funcName](key, function (err, reply) {
         pool.release(client);
+        if (typeof cb === 'function') {
+          cb(err, reply);
+        }
       });
     }
   });
