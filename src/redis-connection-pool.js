@@ -1,7 +1,7 @@
 /**
  * redis-connection-pool.js
  *
- * copyright 2012-2015 Nick Jennings (https://github.com/silverbucket)
+ * copyright 2012-2016 Nick Jennings (https://github.com/silverbucket)
  *
  * licensed under the MIT license.
  * See the LICENSE file for details.
