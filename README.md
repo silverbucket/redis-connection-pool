@@ -78,6 +78,11 @@ hgetall(key, callback)
 hset(key, field, value, callback)
 ```
 
+  * **hdel**
+```javascript
+hdel(key, [fields], callback)
+```
+
   * **brpop**
 ```javascript
 brpop(key, cb)

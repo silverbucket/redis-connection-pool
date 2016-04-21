@@ -220,10 +220,12 @@ RedisConnectionPool.prototype.del = function (key, cb) {
  * Parameters:
  *
  *   key  - (string) - The key of the value you wish to delete
+ *   fields  - [string] - The field names to be deleted
+ *   cb    - (function) - Callback to be executed on completion
  *
  */
-RedisConnectionPool.prototype.hdel = function (hashKey, fields, cb) {
-  redisSingle.apply(this, ['hdel', hashKey, fields, cb]);
+RedisConnectionPool.prototype.hdel = function (key, fields, cb) {
+  redisSingle.apply(this, ['hdel', key, fields, cb]);
 };
 
 /**
