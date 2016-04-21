@@ -213,6 +213,20 @@ RedisConnectionPool.prototype.del = function (key, cb) {
 };
 
 /**
+ * Function: hdel
+ *
+ * Execute a redis HDEL command
+ *
+ * Parameters:
+ *
+ *   key  - (string) - The key of the value you wish to delete
+ *
+ */
+RedisConnectionPool.prototype.hdel = function (hashKey, fields, cb) {
+  redisSingle.apply(this, ['hdel', hashKey, fields, cb]);
+};
+
+/**
  * Function: hset
  *
  * Execute a redis HSET command
@@ -228,6 +242,8 @@ RedisConnectionPool.prototype.del = function (key, cb) {
 RedisConnectionPool.prototype.hset = function (key, field, data, cb) {
   _setFuncs.apply(this, ['hset', key, field, data, cb]);
 };
+
+
 
 /**
  * Function: hget
@@ -379,7 +395,15 @@ function redisSingle (funcName, key, val, cb) {
     cb = val;
   }
   pool.acquire(function (err, client) {
-    if (val) {
+    if (funcName === 'hdel') {
+      var args = [key].concat(val);
+      client[funcName](args, function (err, reply) {
+        pool.release(client);
+        if (typeof cb === 'function') {
+          cb(err, reply);
+        }
+      });
+    } else if (val) {
       client[funcName](key, val, function (err, reply) {
         pool.release(client);
         if (typeof cb === 'function') {
