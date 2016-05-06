@@ -74,7 +74,7 @@ function RedisConnectionPool(uid, cfg) {
   var self = this;
 
   var i = 0;
-  this.pool = Pool({
+  this.pool = new Pool({
     name: self.uid,
     create: function (callback) {
       var client = redis.createClient(self.port, self.host, self.options);
@@ -91,7 +91,7 @@ function RedisConnectionPool(uid, cfg) {
       client.on('ready', function () {
         client.select(self.database, function (err) {
           debug('2. selected database: ' + client.selected_db);
-          callback(null, client);
+          callback(err, client);
         });
       });
     },
@@ -129,7 +129,7 @@ function RedisConnectionPool(uid, cfg) {
  *
  */
 RedisConnectionPool.prototype.on = function(type, cb) {
-  client = redis.createClient();
+  var client = redis.createClient();
   client.on(type, cb);
 };
 
@@ -341,7 +341,7 @@ RedisConnectionPool.prototype.clean = function (key, cb) {
   client.keys(key, function (err, keys) {
     client.quit();
     if ((keys) && (keys.forEach)) {
-      keys.forEach(function (name, pos) {
+      keys.forEach(function (name) {
         debug('deleting name ' + name);
         self.del(name);
       });
@@ -563,10 +563,10 @@ function redisCheck() {
 }
 
 
-var RedisConnectionPoolWrapper;
+var redisConnectionPoolWrapper;
 (function () {
   var redisConnectionPools = {};
-  RedisConnectionPoolWrapper = function (uid, cfg) {
+  redisConnectionPoolWrapper = function (uid, cfg) {
     if (typeof redisConnectionPools[uid] === 'object') {
       return redisConnectionPools[uid];
     } else {
@@ -585,6 +585,6 @@ module.exports = function (uid, cfg) {
     cfg = {};
   }
 
-  return RedisConnectionPoolWrapper(uid, cfg);
+  return redisConnectionPoolWrapper(uid, cfg);
 };
 
