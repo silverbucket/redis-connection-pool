@@ -370,8 +370,23 @@ RedisConnectionPool.prototype.check = function () {
   return redisCheck.apply(this, []);
 };
 
+/**
+ * Function: send_command
+ *
+ * Sends an explicit command to the redis server. Helpful for new commands in redis
+ *   that aren't supported yet by this JS API.
+ *
+ * Parameters:
+ *
+ *   command_name  - (string) - The redis command to execute
+ *   args          - (array) - The arguments to the redis command 
+ *   cb            - (function) - Callback to be executed on completion
+ *
+ */
 
-
+RedisConnectionPool.prototype.send_command = function (command_name, args, cb) {
+  redisSingle.apply(this, ['send_command', command_name, args, cb]);
+};
 
 function redisSingle (funcName, key, val, cb) {
   var pool = this.pool;
