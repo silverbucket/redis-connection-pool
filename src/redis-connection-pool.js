@@ -168,6 +168,21 @@ RedisConnectionPool.prototype.expire = function (key, data, cb) {
 };
 
 /**
+ * Function: ttl
+ *
+ * Execute a redis TTL command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - A key whose TTL(time-to-expire) has to be returned
+ 
+ *
+ */
+RedisConnectionPool.prototype.ttl = function (key, cb) {
+  redisSingle.apply(this, ['ttl', key, cb]);
+};
+
+/**
  * Function: set
  *
  * Execute a redis SET command
@@ -370,6 +385,20 @@ RedisConnectionPool.prototype.check = function () {
   return redisCheck.apply(this, []);
 };
 
+/**
+ * Function: incr
+ *
+ * Execute a redis INCR command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - A key whose value you wish to increment
+ *   cb   - (function) - Callback to be executed on completion
+ *
+ */
+RedisConnectionPool.prototype.incr = function (key, cb) {
+  redisSingle.apply(this, ['incr', key, cb]);
+};
 
 
 

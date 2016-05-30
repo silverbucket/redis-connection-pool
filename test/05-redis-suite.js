@@ -254,6 +254,38 @@ define(['require'], function (require) {
         }
       },
 
+      {
+        desc: "#expire",
+        timeout: 2000,
+        run: function (env, test) {
+          env.redisPool.set(env.channel + 'test', 10, function (err) {
+            test.assertAnd(err, null);
+            test.assert(reply, 1);
+          });
+        }
+      },
+
+      {
+        desc: "#ttl",
+        timeout: 2000,
+        run: function (env, test) {
+          env.redisPool.set(env.channel + 'test', function (err) {
+            test.assertAnd(err, null);
+            test.assert(reply, 10);
+          });
+        }
+      },
+
+      {
+        desc: "#incr",
+        timeout: 2000,
+        run: function (env, test) {
+          env.redisPool.set(env.channel + 'test', function (err) {
+            test.assertAnd(err, null);
+            test.assert(reply, 1);
+          });
+        }
+      }
     ]
   });
 
