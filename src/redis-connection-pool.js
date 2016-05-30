@@ -179,7 +179,7 @@ RedisConnectionPool.prototype.expire = function (key, data, cb) {
  *
  */
 RedisConnectionPool.prototype.ttl = function (key, cb) {
-  redisSingle.apply(this, ['ttl', key, cb]);
+  _getFuncs.apply(this, ['ttl', key, cb]);
 };
 
 /**
@@ -481,7 +481,7 @@ function _getFuncs(funcName, key, field, cb) {
   }
 
   pool.acquire(function (err, client) {
-    if ((funcName === 'get') || (funcName === 'hgetall')) {
+    if ((funcName === 'get') || (funcName === 'hgetall') || (funcName === 'ttl')) {
       redisGet.apply(self, [funcName, client, key, cb]);
     } else if (funcName === 'blpop') {
       redisBlockingGet.apply(self, ['blpop', client, key, cb]);
