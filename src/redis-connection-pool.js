@@ -397,7 +397,7 @@ RedisConnectionPool.prototype.check = function () {
  *
  */
 RedisConnectionPool.prototype.incr = function (key, cb) {
-  redisSingle.apply(this, ['incr', key, cb]);
+  _getFuncs.apply(this, ['incr', key, cb]);
 };
 
 
@@ -481,7 +481,7 @@ function _getFuncs(funcName, key, field, cb) {
   }
 
   pool.acquire(function (err, client) {
-    if ((funcName === 'get') || (funcName === 'hgetall') || (funcName === 'ttl')) {
+    if ((funcName === 'get') || (funcName === 'hgetall') || (funcName === 'ttl') || (funcName === 'incr')) {
       redisGet.apply(self, [funcName, client, key, cb]);
     } else if (funcName === 'blpop') {
       redisBlockingGet.apply(self, ['blpop', client, key, cb]);
