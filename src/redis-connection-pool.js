@@ -168,6 +168,21 @@ RedisConnectionPool.prototype.expire = function (key, data, cb) {
 };
 
 /**
+ * Function: ttl
+ *
+ * Execute a redis TTL command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - A key whose TTL(time-to-expire) has to be returned
+ 
+ *
+ */
+RedisConnectionPool.prototype.ttl = function (key, cb) {
+  _getFuncs.apply(this, ['ttl', key, cb]);
+};
+
+/**
  * Function: set
  *
  * Execute a redis SET command
@@ -370,6 +385,20 @@ RedisConnectionPool.prototype.check = function () {
   return redisCheck.apply(this, []);
 };
 
+/**
+ * Function: incr
+ *
+ * Execute a redis INCR command
+ *
+ * Parameters:
+ *
+ *   key   - (string) - A key whose value you wish to increment
+ *   cb   - (function) - Callback to be executed on completion
+ *
+ */
+RedisConnectionPool.prototype.incr = function (key, cb) {
+  _getFuncs.apply(this, ['incr', key, cb]);
+};
 
 
 
@@ -452,7 +481,7 @@ function _getFuncs(funcName, key, field, cb) {
   }
 
   pool.acquire(function (err, client) {
-    if ((funcName === 'get') || (funcName === 'hgetall')) {
+    if ((funcName === 'get') || (funcName === 'hgetall') || (funcName === 'ttl') || (funcName === 'incr')) {
       redisGet.apply(self, [funcName, client, key, cb]);
     } else if (funcName === 'blpop') {
       redisBlockingGet.apply(self, ['blpop', client, key, cb]);
