@@ -4,7 +4,6 @@ node-redis-connection-pool
 A node.js connection pool for Redis.
 
 [![Build Status](http://img.shields.io/travis/silverbucket/node-redis-connection-pool.svg?style=flat)](http://travis-ci.org/silverbucket/node-redis-connection-pool)
-[![Code Climate](http://img.shields.io/codeclimate/github/silverbucket/node-redis-connection-pool.svg?style=flat)](https://codeclimate.com/github/silverbucket/node-redis-connection-pool)
 [![license](https://img.shields.io/npm/l/redis-connection-pool.svg?style=flat)](https://npmjs.org/package/redis-connection-pool)
 [![downloads](http://img.shields.io/npm/dm/redis-connection-pool.svg?style=flat)](https://npmjs.org/package/redis-connection-pool)
 
