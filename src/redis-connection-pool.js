@@ -423,6 +423,7 @@ function redisSingle (funcName, key, val, cb) {
   var pool = this.pool;
   if (typeof val === 'function') {
     cb = val;
+    val=null;
   }
   pool.acquire(function (err, client) {
     if (val) {
