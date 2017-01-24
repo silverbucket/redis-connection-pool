@@ -66,8 +66,28 @@ define(['require'], function (require) {
           });
           delete env.redisPool;
         }
+      },
+
+      {
+        desc: 'check alternate host setting',
+        run: function (env, test) {
+          env.redisPool = env.RedisPool('redisPoolTests1234', {
+            host: '1.2.3.4',
+            port: 1234,
+            max_clients: 12,
+            perform_checks: true
+          });
+          test.assertAnd(env.redisPool.host, '1.2.3.4');
+          test.assertAnd(env.redisPool.port, 1234);
+          test.assert(env.redisPool.max_clients, 12);
+        },
+        takedown: function (env, test) {
+          env.redisPool.clean(env.channel + '*', function () {
+            test.result(true);
+          });
+          delete env.redisPool;
+        }
       }
-      
     ]
   },
 
