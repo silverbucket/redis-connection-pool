@@ -619,9 +619,10 @@ function redisCheck() {
       q.reject(err);
     });
     client.on('ready', function () {
+      client.server_info = client.server_info || {};
       self.version_string = client.server_info.redis_version;
       self.version_array = client.server_info.versions;
-      if (self.version_array[0] < 2) {
+      if (!self.version_array || self.version_array[0] < 2) {
         self.blocking_support = false;
       }
       client.quit();
