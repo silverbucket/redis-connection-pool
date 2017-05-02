@@ -43,6 +43,8 @@ var redis     = require('redis'),
  *
  *   cfg.port - (number) - Redis port (default: 6379)
  *
+ *   cfg.url - (string) - [optional] Complete Redis URL (overrides host and port)
+ *
  *   cfg.max_clients - (number) - Max clients alive in the connection pool at
  *                                once. (default: 30)
  *
@@ -67,6 +69,12 @@ function RedisConnectionPool(uid, cfg) {
   this.options        = (typeof cfg.options === 'object') ? cfg.options : null;
   this.database       = (typeof cfg.database === 'number') ? cfg.database : 0;
 
+  if (typeof cfg.url === 'string') {
+    this.url = cfg.url;
+    this.host = undefined;
+    this.port = undefined;
+  }
+
   this.blocking_support = true;
   this.version_array    = undefined;
   this.version_string   = undefined;
@@ -77,7 +85,12 @@ function RedisConnectionPool(uid, cfg) {
   this.pool = new Pool({
     name: self.uid,
     create: function (callback) {
-      var client = redis.createClient(self.port, self.host, self.options);
+      var client;
+      if (self.url) {
+        client = redis.createClient(self.url, self.options);
+      } else {
+        client = redis.createClient(self.port, self.host, self.options);
+      }
       client.__name = "client" + i;
       i = i + 1;
 
@@ -87,7 +100,7 @@ function RedisConnectionPool(uid, cfg) {
       client.on('error', function (err) {
         debug(err);
       });
-      
+
       client.on('ready', function () {
         client.select(self.database, function (err) {
           debug('2. selected database: ' + client.selected_db);
@@ -175,7 +188,7 @@ RedisConnectionPool.prototype.expire = function (key, data, cb) {
  * Parameters:
  *
  *   key   - (string) - A key whose TTL(time-to-expire) has to be returned
- 
+
  *
  */
 RedisConnectionPool.prototype.ttl = function (key, cb) {
@@ -427,7 +440,7 @@ RedisConnectionPool.prototype.incr = function (key, cb) {
  * Parameters:
  *
  *   command_name  - (string) - The redis command to execute
- *   args          - (array) - The arguments to the redis command 
+ *   args          - (array) - The arguments to the redis command
  *   cb            - (function) - Callback to be executed on completion
  *
  */
@@ -612,7 +625,12 @@ function redisBlockingGet(funcName, client, key, cb) {
 function redisCheck() {
   var q = Q.defer();
   var self = this;
-  var client = redis.createClient(self.port, self.host);
+  var client;
+  if (self.url) {
+    client = redis.createClient(self.url);
+  } else {
+    client = redis.createClient(self.port, self.host);
+  }
   try {
     client.on('error', function (err) {
       client.quit();

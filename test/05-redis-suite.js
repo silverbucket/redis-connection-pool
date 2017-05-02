@@ -29,11 +29,11 @@ define(['require'], function (require) {
           });
           test.assertTypeAnd(env.redisPool, 'object');
           test.assertAnd(env.redisPool.uid, 'redisPoolTests1');
-          
+
           env.redisPool.serverInfo(function (err, serverInfo) {
             test.assert(serverInfo.database, 0);
           });
-          
+
         },
         takedown: function (env, test) {
           env.redisPool.clean(env.channel + '*', function () {
@@ -55,7 +55,7 @@ define(['require'], function (require) {
           });
           test.assertTypeAnd(env.redisPool, 'object');
           test.assertAnd(env.redisPool.uid, 'redisPoolTests2');
-          
+
           env.redisPool.serverInfo(function (err, serverInfo) {
             test.assert(serverInfo.database, 7);
           });
@@ -80,6 +80,30 @@ define(['require'], function (require) {
           test.assertAnd(env.redisPool.host, '1.2.3.4');
           test.assertAnd(env.redisPool.port, 1234);
           test.assert(env.redisPool.max_clients, 12);
+        },
+        takedown: function (env, test) {
+          env.redisPool.clean(env.channel + '*', function () {
+            test.result(true);
+          });
+          delete env.redisPool;
+        }
+      },
+
+      {
+        desc: 'connect using URL property',
+        run: function (env, test) {
+          env.redisPool = env.RedisPool('redisPoolTestsURL', {
+            url: "redis://localhost:6379",
+            max_clients: 12,
+            perform_checks: true
+          });
+          test.assertAnd(env.redisPool.url, 'redis://localhost:6379');
+          test.assertTypeAnd(env.redisPool.host, "undefined");
+          test.assert(env.redisPool.max_clients, 12);
+
+          env.redisPool.serverInfo(function (err, serverInfo) {
+            test.assert(serverInfo.database, 0);
+          });
         },
         takedown: function (env, test) {
           env.redisPool.clean(env.channel + '*', function () {
