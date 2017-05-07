@@ -1,6 +1,8 @@
 node-redis-connection-pool
 ==========================
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/silverbucket/node-redis-connection-pool.svg)](https://greenkeeper.io/)
+
 A node.js connection pool for Redis.
 
 [![Build Status](http://img.shields.io/travis/silverbucket/node-redis-connection-pool.svg?style=flat)](http://travis-ci.org/silverbucket/node-redis-connection-pool)
