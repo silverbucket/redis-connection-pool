@@ -369,6 +369,22 @@ RedisConnectionPool.prototype.brpop = function (key, cb) {
 };
 
 /**
+ * Function: brpoplpush
+ *
+ * Execute a redis BRPOPLPUSH command
+ *
+ * Parameters:
+ *
+ *   key1   - (string) - The pop list key
+ *   key2   - (string) - The push list key
+ *   cb    - (function) - Callback to be executed on completion
+ *
+ */
+RedisConnectionPool.prototype.brpoplpush = function (key1, key2, cb) {
+  _getFuncs.apply(this, ['brpoplpush', [key1, key2], cb]);
+};
+
+/**
  * Function: clean
  *
  * Clean the redis key namespace
@@ -544,6 +560,8 @@ function _getFuncs(funcName, key, field, cb) {
       redisBlockingGet.apply(self, ['blpop', client, key, cb]);
     } else if (funcName === 'brpop') {
       redisBlockingGet.apply(self, ['brpop', client, key, cb]);
+    } else if (funcName === 'brpoplpush') {
+      redisBlockingGetBRPOPLPUSH.apply(self, ['brpoplpush', client, key[0], key[1], cb]);
     } else if (funcName === 'hget') {
       redisHashGet.apply(self, [client, key, field, cb]);
     } else if (funcName === 'hgetall') {
@@ -621,6 +639,24 @@ function redisBlockingGet(funcName, client, key, cb) {
   });
 }
 
+function redisBlockingGetBRPOPLPUSH(funcName, client, key1, key2, cb) {
+  var pool = this.pool;
+  var responded = false;
+  client[funcName](key1, key2, 0, function (err, replies) {
+    responded = true;
+    pool.release(client);
+    if (err) {
+      debug('ERROR (' + funcName + ')', err);
+      cb(err, null);
+    } else if ((!replies) || (typeof replies[1] === 'undefined')) {
+      debug('ERROR got a bad reply: ', replies);
+      cb('got bad reply from redis', []);
+    } else {
+      cb(err, replies);
+    }
+  });
+}
+
 
 function redisCheck() {
   var q = Q.defer();
@@ -679,4 +715,3 @@ module.exports = function (uid, cfg) {
 
   return redisConnectionPoolWrapper(uid, cfg);
 };
-
