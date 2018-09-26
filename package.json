@@ -1,6 +1,6 @@
 {
   "name": "redis-connection-pool",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "a redis client connection pool",
   "license": "MIT",
   "private": false,
