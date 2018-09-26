@@ -111,8 +111,7 @@ lpush(key, value, callback)
 
 
 ## API Documentation
-node-redis-connection-pool uses NaturalDocs to generate API documentation, which can be viewed after cloning the repository, in the doc/ directory, using a web browser.
-
+node-redis-connection-pool uses jsdoc-to-markdown to generate the [API.md](API.md) from the source code.
 
 ## License
 

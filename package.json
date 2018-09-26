@@ -18,7 +18,8 @@
   },
   "main": "./src/redis-connection-pool.js",
   "scripts": {
-    "test": "node_modules/.bin/jaribu"
+    "test": "node_modules/.bin/jaribu",
+    "doc": "node_modules/.bin/jsdoc2md src/redis-connection-pool.js > API.md"
   },
   "dependencies": {
     "debug": "^4.0.1",
@@ -26,7 +27,8 @@
     "redis": "^2.8.0"
   },
   "devDependencies": {
-    "jaribu": "^2.0.0"
+    "jaribu": "^2.0.0",
+    "jsdoc-to-markdown": "^4.0.1"
   },
   "repository": {
     "type": "git",
