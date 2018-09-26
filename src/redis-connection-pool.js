@@ -663,9 +663,9 @@ function redisCheck() {
   var self = this;
   var client;
   if (self.url) {
-    client = redis.createClient(self.url);
+    client = redis.createClient(self.url, self.options);
   } else {
-    client = redis.createClient(self.port, self.host);
+    client = redis.createClient(self.port, self.host, self.options);
   }
   try {
     client.on('error', function (err) {
