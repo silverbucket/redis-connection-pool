@@ -89,6 +89,11 @@ hdel(key, [fields], callback)
 brpop(key, cb)
 ```
 
+ * **brpoplpush**
+```javascript
+brpoplpush(key1, key2, callback)
+```
+
   * **blpop**
 ```javascript
 blpop(key, cb)

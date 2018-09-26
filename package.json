@@ -21,10 +21,10 @@
     "test": "node_modules/.bin/jaribu"
   },
   "dependencies": {
-    "debug": "^2.1.0",
-    "generic-pool": "^2.2.0",
-    "q": "^1.4.1",
-    "redis": "^2.6.2"
+    "debug": "^4.0.1",
+    "generic-pool": "^3.4.2",
+    "q": "^1.5.1",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "jaribu": "^2.0.0"
