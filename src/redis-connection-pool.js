@@ -15,10 +15,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-const redis     = require('redis'),
-      Q         = require('q'),
-      Pool      = require('generic-pool').Pool,
-      debug     = require('debug')('redis-connection-pool');
+const redis       = require('redis'),
+      genericPool = require('generic-pool'),
+      debug       = require('debug')('redis-connection-pool');
 
 /**
  * Function: RedisConnectionPool
@@ -80,39 +79,45 @@ function RedisConnectionPool(uid, cfg) {
   this.version_array    = undefined;
   this.version_string   = undefined;
 
-  let self = this;
   let i = 0;
-  this.pool = new Pool({
-    name: self.uid,
-    create: function (callback) {
-      let client;
-      if (self.url) {
-        client = redis.createClient(self.url, self.options);
-      } else {
-        client = redis.createClient(self.port, self.host, self.options);
-      }
-      client.__name = `client${i}`;
-      i = i + 1;
+  const factory = {
+    create: () => {
+      return new Promise((resolve, reject) => {
+        let client;
+        if (this.url) {
+          client = redis.createClient(this.url, this.options);
+        } else {
+          client = redis.createClient(this.port, this.host, this.options);
+        }
+        client.__name = `client${i}`;
+        i = i + 1;
 
-      self.database = self.database || 0;
+        this.database = this.database || 0;
 
-      debug('selecting database ' + self.database);
-      client.on('error', function (err) {
-        debug(err);
-      });
+        debug('selecting database ' + this.database);
+        client.on('error', function (err) {
+          debug(err);
+        });
 
-      client.on('ready', function () {
-        client.select(self.database, function (err) {
-          debug('2. selected database: ' + client.selected_db);
-          callback(err, client);
+        client.on('ready', () => {
+          client.select(this.database, (err) => {
+            debug('2. selected database: ' + client.selected_db);
+            if (err) { return reject(err); }
+            else { return resolve(client); }
+          });
         });
       });
     },
-    destroy: function (client) {
-      return client.quit();
-    },
-    max: self.max_clients,
-    log: false
+    destroy: (client) => {
+      return new Promise((resolve, reject) => {
+        client.quit();
+        resolve();
+      });
+    }
+  };
+  
+  this.pool = genericPool.createPool(factory, {
+    max: this.max_clients
   });
 
   redisCheck.apply(this, []);
@@ -122,9 +127,9 @@ function RedisConnectionPool(uid, cfg) {
     debug('REDIS POOL: [size: ' + pool.getPoolSize() +
                 ' avail:' + pool.availableObjectsCount() +
                 ' waiting:' + pool.waitingClientsCount() + ']');
-    setTimeout(poolStats, 300000, pool);
+    return setTimeout(poolStats, 300000, pool);
   }, 300000, this.pool);
-
+  
   return this;
 }
 
@@ -155,13 +160,12 @@ RedisConnectionPool.prototype.on = function (type, cb) {
  *
  */
 RedisConnectionPool.prototype.serverInfo = function (cb) {
-  this.pool.acquire((err, client) => {
-    if (err) { throw new Error(err); }
+  this.pool.acquire().then((client) => {
     let serverInfo = client.server_info;
     serverInfo.database = client.selected_db;
     this.pool.release(client);
     cb(null, serverInfo);
-  });
+  }).catch(cb);
 };
 
 
@@ -470,8 +474,7 @@ function redisSingle(funcName, key, val, cb) {
     cb = val;
     val = null;
   }
-  this.pool.acquire((err, client) => {
-    if (err) { throw new Error(err); }
+  this.pool.acquire().then((client) => {
     if (funcName === 'hdel') {
       const args = [key].concat(val);
       client[funcName](args, (err, reply) => {
@@ -495,7 +498,7 @@ function redisSingle(funcName, key, val, cb) {
         }
       });
     }
-  });
+  }).catch(cb);
 }
 
 
@@ -506,8 +509,7 @@ function _setFuncs(funcName, key, field, data, cb) {
     field = null;
   }
 
-  this.pool.acquire((err, client) => {
-    if (err) { throw new Error(err); }
+  this.pool.acquire().then((client) => {
     if (funcName === 'hset') {
       client[funcName](key, field, data, (err, reply) => {
         this.pool.release(client);
@@ -539,7 +541,7 @@ function _setFuncs(funcName, key, field, data, cb) {
         }
       });
     }
-  });
+  }).catch(cb);
 }
 
 
@@ -549,8 +551,7 @@ function _getFuncs(funcName, key, field, cb) {
     field = null;
   }
 
-  this.pool.acquire((err, client) => {
-    if (err) { throw new Error(err); }
+  this.pool.acquire().then((client) => {
     if ((funcName === 'get') || (funcName === 'hgetall') ||
         (funcName === 'ttl') || (funcName === 'incr')) {
       redisGet.apply(this, [funcName, client, key, cb]);
@@ -565,7 +566,7 @@ function _getFuncs(funcName, key, field, cb) {
     } else if (funcName === 'hgetall') {
       redisHashGet.apply(this, [client, key, null, cb]);
     }
-  });
+  }).catch(cb);
 }
 
 
@@ -653,34 +654,34 @@ function redisBlockingGetBRPOPLPUSH(funcName, client, key1, key2, cb) {
 
 
 function redisCheck() {
-  const q = Q.defer();
-  let client;
-  if (this.url) {
-    client = redis.createClient(this.url, this.options);
-  } else {
-    client = redis.createClient(this.port, this.host, this.options);
-  }
-  try {
-    client.on('error', (err) => {
+  return new Promise((resolve, reject) => {
+    let client;
+    if (this.url) {
+      client = redis.createClient(this.url, this.options);
+    } else {
+      client = redis.createClient(this.port, this.host, this.options);
+    }
+    try {
+      client.on('error', (err) => {
+        client.quit();
+        reject(err);
+      });
+      client.on('ready', () => {
+        client.server_info = client.server_info || {};
+        this.version_string = client.server_info.redis_version;
+        this.version_array = client.server_info.versions;
+        if (!this.version_array || this.version_array[0] < 2) {
+          this.blocking_support = false;
+        }
+        client.quit();
+        resolve(this.version_string);
+      });
+    } catch (e) {
+      debug('ERROR cannot connect to redis, ' + e);
       client.quit();
-      q.reject(err);
-    });
-    client.on('ready', () => {
-      client.server_info = client.server_info || {};
-      this.version_string = client.server_info.redis_version;
-      this.version_array = client.server_info.versions;
-      if (!this.version_array || this.version_array[0] < 2) {
-        this.blocking_support = false;
-      }
-      client.quit();
-      q.resolve(this.version_string);
-    });
-  } catch (e) {
-    debug('ERROR cannot connect to redis, ' + e);
-    q.reject('cannot connect to redis: ' + e);
-    client.quit();
-  }
-  return q.promise;
+      reject('cannot connect to redis: ' + e);
+    }
+  });
 }
 
 

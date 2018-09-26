@@ -3,17 +3,15 @@ if (typeof define !== 'function') {
 }
 
 define(['require'], function (require) {
-  var suites = [];
+  let suites = [];
 
-  suites.push(
-
-  {
-    name: "database connection tests",
-    desc: "testing states of database connectivity",
+  suites.push({
+    name: 'database connection tests',
+    desc: 'testing states of database connectivity',
     abortOnFail: true, // don't continue with further test suites if any tests in this suite fail
     setup: function (env, test) {
       env.RedisPool = require('./../src/redis-connection-pool');
-      env.channel = "redis-connection-pool-tests:";
+      env.channel = 'redis-connection-pool-tests:';
       test.done();
     },
     tests: [
@@ -93,12 +91,12 @@ define(['require'], function (require) {
         desc: 'connect using URL property',
         run: function (env, test) {
           env.redisPool = env.RedisPool('redisPoolTestsURL', {
-            url: "redis://localhost:6379",
+            url: 'redis://localhost:6379',
             max_clients: 12,
             perform_checks: true
           });
           test.assertAnd(env.redisPool.url, 'redis://localhost:6379');
-          test.assertTypeAnd(env.redisPool.host, "undefined");
+          test.assertTypeAnd(env.redisPool.host, 'undefined');
           test.assert(env.redisPool.max_clients, 12);
 
           env.redisPool.serverInfo(function (err, serverInfo) {
@@ -116,11 +114,11 @@ define(['require'], function (require) {
   },
 
   {
-    name: "redis tests",
-    desc: "collection of basic redis-connection-pool tests",
+    name: 'redis tests',
+    desc: 'collection of basic redis-connection-pool tests',
     abortOnFail: true, // don't continue with further test suites if any tests in this suite fail
     setup: function (env, test) {
-      env.channel = "redis-connection-pool-tests:";
+      env.channel = 'redis-connection-pool-tests:';
       env.redisPool = require('./../src/redis-connection-pool')('redisPoolTests', {
         host: '127.0.0.1',
         port: 6379,
@@ -142,7 +140,7 @@ define(['require'], function (require) {
     tests: [
 
       {
-        desc: "#check()",
+        desc: '#check()',
         timeout: 2000,
         run: function (env, test) {
           env.redisPool.check().then(function (redis_version) {
@@ -152,7 +150,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "verify version properties are set",
+        desc: 'verify version properties are set',
         timeout: 2000,
         run: function (env, test) {
           test.assertTypeAnd(env.redisPool.version_string, 'string');
@@ -161,7 +159,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#set",
+        desc: '#set',
         timeout: 2000,
         run: function (env, test) {
           env.redisPool.set(env.channel + 'test', 'foobar', function (err) {
@@ -171,7 +169,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#get",
+        desc: '#get',
         run: function (env, test) {
           env.redisPool.get(env.channel + 'test', function (err, reply) {
             test.assertAnd(err, null);
@@ -181,7 +179,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#hset",
+        desc: '#hset',
         run: function (env, test) {
           env.redisPool.hset(env.channel + 'testhash', 'foo', 'bar', function (err, reply) {
             test.assert(err, null);
@@ -190,7 +188,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#hget",
+        desc: '#hget',
         run: function (env, test) {
           env.redisPool.hget(env.channel + 'testhash', 'foo', function (err, reply) {
             test.assertAnd(err, null);
@@ -200,7 +198,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#hset",
+        desc: '#hset',
         run: function (env, test) {
           env.redisPool.hset(env.channel + 'testhash', 'foo', 'bar', function (err, reply) {
             test.assertAnd(err, null);
@@ -218,7 +216,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#hgetall",
+        desc: '#hgetall',
         run: function (env, test) {
           env.redisPool.hget(env.channel + 'testhash', function (err, reply) {
             test.assertAnd(err, null);
@@ -229,7 +227,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#rpush",
+        desc: '#rpush',
         run: function (env, test) {
           env.redisPool.rpush(env.channel + 'testlist', 'foo', function (err, reply) {
             test.assertAnd(err, null);
@@ -244,7 +242,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#blpop",
+        desc: '#blpop',
         run: function (env, test) {
           env.redisPool.blpop(env.channel + 'testlist', function (err, reply) {
             test.assertAnd(err, null);
@@ -254,7 +252,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#brpop",
+        desc: '#brpop',
         run: function (env, test) {
           env.redisPool.brpop(env.channel + 'testlist', function (err, reply) {
             test.assertAnd(err, null);
@@ -264,7 +262,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#lpush",
+        desc: '#lpush',
         run: function (env, test) {
           env.redisPool.lpush(env.channel + 'testlist', 'foo', function (err, reply) {
             test.assertAnd(err, null);
@@ -279,7 +277,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#blpop",
+        desc: '#blpop',
         run: function (env, test) {
           env.redisPool.blpop(env.channel + 'testlist', function (err, reply) {
             test.assertAnd(err, null);
@@ -289,7 +287,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#brpop",
+        desc: '#brpop',
         run: function (env, test) {
           env.redisPool.brpop(env.channel + 'testlist', function (err, reply) {
             test.assertAnd(err, null);
@@ -299,7 +297,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#expire",
+        desc: '#expire',
         timeout: 2000,
         run: function (env, test) {
           env.redisPool.expire(env.channel + 'test', 100, function (err) {
@@ -309,7 +307,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#ttl",
+        desc: '#ttl',
         timeout: 2000,
         run: function (env, test) {
           env.redisPool.ttl(env.channel + 'test', function (err, reply) {
@@ -320,7 +318,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#set",
+        desc: '#set',
         timeout: 2000,
         run: function (env, test) {
           env.redisPool.set(env.channel + 'test', 1, function (err) {
@@ -330,7 +328,7 @@ define(['require'], function (require) {
       },
 
       {
-        desc: "#incr",
+        desc: '#incr',
         timeout: 2000,
         run: function (env, test) {
           env.redisPool.incr(env.channel + 'test', function (err) {
