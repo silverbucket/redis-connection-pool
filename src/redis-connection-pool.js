@@ -115,21 +115,20 @@ function RedisConnectionPool(uid, cfg) {
       });
     }
   };
-  
+
   this.pool = genericPool.createPool(factory, {
     max: this.max_clients
   });
 
   redisCheck.apply(this, []);
 
-  setTimeout(function poolStats(pool) {
+  setInterval(() => {
     // periodically report pool statistics
-    debug('REDIS POOL: [size: ' + pool.getPoolSize() +
-                ' avail:' + pool.availableObjectsCount() +
-                ' waiting:' + pool.waitingClientsCount() + ']');
-    return setTimeout(poolStats, 300000, pool);
-  }, 300000, this.pool);
-  
+    debug('pool size: ' + this.pool.size +
+          ', available:' + this.pool.available +
+          ', pending:' + this.pool.pending);
+  }, 300000);
+
   return this;
 }
 
