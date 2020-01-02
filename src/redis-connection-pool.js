@@ -146,7 +146,7 @@ function RedisConnectionPool(uid, cfg) {
  *
  */
 RedisConnectionPool.prototype.on = function (type, cb) {
-  const client = redis.createClient();
+  const client = this.url?redis.createClient(this.url, this.options):redis.createClient(this.port, this.host, this.options);
   client.on(type, cb);
 };
 
@@ -400,7 +400,7 @@ RedisConnectionPool.prototype.brpoplpush = function (key1, key2, cb) {
  */
 RedisConnectionPool.prototype.clean = function (key, cb) {
   debug('clearing redis key ' + key);
-  const client = redis.createClient();
+  const client = this.url?redis.createClient(this.url, this.options):redis.createClient(this.port, this.host, this.options);
 
   client.keys(key, (err, keys) => {
     client.quit();
