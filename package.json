@@ -24,7 +24,7 @@
   "dependencies": {
     "debug": "^4.0.1",
     "generic-pool": "^3.4.2",
-    "redis": "^2.8.0"
+    "redis": "^3.0.0"
   },
   "devDependencies": {
     "jaribu": "^2.0.0",
