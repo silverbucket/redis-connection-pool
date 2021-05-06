@@ -384,7 +384,7 @@ Parameters:
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+send_command"></a>
 
-### redisConnectionPool.send_command()
+### redisConnectionPool.send\_command()
 Function: send_command
 
 Sends an explicit command to the redis server. Helpful for new commands in redis
