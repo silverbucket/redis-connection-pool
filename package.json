@@ -1,6 +1,6 @@
 {
   "name": "redis-connection-pool",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "a redis client connection pool",
   "license": "MIT",
   "private": false,
@@ -22,13 +22,13 @@
     "doc": "node_modules/.bin/jsdoc2md src/redis-connection-pool.js > API.md"
   },
   "dependencies": {
-    "debug": "^4.0.1",
-    "generic-pool": "^3.4.2",
-    "redis": "^3.1.1"
+    "debug": "^4.3.1",
+    "generic-pool": "^3.7.8",
+    "redis": "^3.1.2"
   },
   "devDependencies": {
-    "jaribu": "^2.0.0",
-    "jsdoc-to-markdown": "^7.0.1"
+    "jaribu": "^2.2.3",
+    "jsdoc-to-markdown": "7.0.1"
   },
   "repository": {
     "type": "git",
