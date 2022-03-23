@@ -116,6 +116,3 @@ node-redis-connection-pool uses jsdoc-to-markdown to generate the [API.md](API.m
 ## License
 
 [MIT](https://github.com/silverbucket/node-redis-connection-pool/blob/master/LICENSE)
-
-
-

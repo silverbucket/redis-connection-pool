@@ -16,6 +16,7 @@ define(['require'], function (require) {
     },
     tests: [{
       desc: 'connect to database',
+      timeout: 1000000,
       run: function (env, test) {
         env.redisPool = env.RedisPool('redisPoolTests1', {
           host: '127.0.0.1',
@@ -30,7 +31,6 @@ define(['require'], function (require) {
           test.assertAnd(err, null);
           test.assert(serverInfo.database, 0);
         });
-
       },
       takedown: function (env, test) {
         env.redisPool.clean(env.channel + '*', () => {

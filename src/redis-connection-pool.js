@@ -1,7 +1,7 @@
 /**
  * redis-connection-pool.js
  *
- * copyright 2012 - 2018 Nick Jennings (https://github.com/silverbucket)
+ * copyright 2012 - 2022 Nick Jennings (https://github.com/silverbucket)
  *
  * licensed under the MIT license.
  * See the LICENSE file for details.
@@ -69,6 +69,12 @@ function RedisConnectionPool(uid, cfg) {
   this.options        = (typeof cfg.options === 'object') ? cfg.options : null;
   this.database       = (typeof cfg.database === 'number') ? cfg.database : 0;
 
+  if (this.options) {
+    this.options.legacyMode = (typeof cfg.options.legacyMode === 'boolean') ? cfg.options.legacyMode : true;
+  } else {
+    this.options = { legacyMode: true }
+  }
+
   if (typeof cfg.url === 'string') {
     this.url = cfg.url;
     this.host = undefined;
@@ -93,8 +99,8 @@ function RedisConnectionPool(uid, cfg) {
         i = i + 1;
 
         this.database = this.database || 0;
-
         debug('selecting database ' + this.database);
+
         client.on('error', function (err) {
           debug(err);
         });
@@ -106,6 +112,9 @@ function RedisConnectionPool(uid, cfg) {
             else { return resolve(client); }
           });
         });
+
+        debug('connecting');
+        client.connect();
       });
     },
     destroy: (client) => {
@@ -146,7 +155,8 @@ function RedisConnectionPool(uid, cfg) {
  *
  */
 RedisConnectionPool.prototype.on = function (type, cb) {
-  const client = redis.createClient();
+  const client = redis.createClient({legacyMode: true});
+  client.connect();
   client.on(type, cb);
 };
 
@@ -159,7 +169,9 @@ RedisConnectionPool.prototype.on = function (type, cb) {
  *
  */
 RedisConnectionPool.prototype.serverInfo = function (cb) {
+  debug('-1')
   this.pool.acquire().then((client) => {
+    console.log('client');
     let serverInfo = client.server_info;
     serverInfo.database = client.selected_db;
     this.pool.release(client);
@@ -400,7 +412,8 @@ RedisConnectionPool.prototype.brpoplpush = function (key1, key2, cb) {
  */
 RedisConnectionPool.prototype.clean = function (key, cb) {
   debug('clearing redis key ' + key);
-  const client = redis.createClient();
+  const client = redis.createClient({legacyMode: true});
+  client.connect();
 
   client.keys(key, (err, keys) => {
     client.quit();
