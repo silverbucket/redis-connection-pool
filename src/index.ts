@@ -26,6 +26,13 @@ interface RedisConnectionPoolConfig {
   perform_checks?: boolean;
 }
 
+export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnectionPoolConfig = {}, redisCfg: RedisClientOptions = {}) {
+  if (! connectionPools.has(uid)) {
+    connectionPools.set(uid, new RedisConnectionPool(uid, cfg, redisCfg));
+  }
+  return connectionPools.get(uid);
+}
+
 /**
  * Function: redisConnectionPoolFactory
  *
@@ -45,10 +52,10 @@ interface RedisConnectionPoolConfig {
  *                    passed in and used during initialization of the object.
  *
  *
- *       cfg.max_clients - (number) - Max clients alive in the connection pool at
+ *   cfg.max_clients - (number) - Max clients alive in the connection pool at
  *                                once. (default: 30)
  *
- *       cfg.perform_checks - (boolean) - Perform a series of redis checks,
+ *   cfg.perform_checks - (boolean) - Perform a series of redis checks,
  *                                    currently this checks to to see if
  *                                    blocking push/pops can be used.
  *                                    (default: false)
@@ -59,14 +66,6 @@ interface RedisConnectionPoolConfig {
  *
  *   A RedisConnectionPool object
  */
-
-export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnectionPoolConfig = {}, redisCfg: RedisClientOptions = {}) {
-  if (! connectionPools.has(uid)) {
-    connectionPools.set(uid, new RedisConnectionPool(uid, cfg, redisCfg));
-  }
-  return connectionPools.get(uid);
-}
-
 export class RedisConnectionPool {
   uid: string;
   max_clients: number = 10;
