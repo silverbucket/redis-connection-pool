@@ -13,6 +13,8 @@ a number of connections in a pool, using them as needed and keeping all aspects
 of releasing active connections internal to the object, so the user does not
 need to worry about forgotten connections leaking resources.
 
+**NOTE** Version 2.x is a rewrite and not backward compatible, please re-read the documentation to update your code.
+
 ## Installation
 
 ```javascript
@@ -23,90 +25,82 @@ npm install redis-connection-pool
 
 ```javascript
 var redisPool = require('redis-connection-pool')('myRedisPool', {
-    host: '127.0.0.1', // default
-    port: 6379, //default
-    // optionally specify full redis url, overrides host + port properties
-    // url: "redis://username:password@host:port"
-    max_clients: 30, // defalut
-    perform_checks: false, // checks for needed push/pop functionality
-    database: 0, // database number to use
-    options: {
-      auth_pass: 'password'
-    } //options for createClient of node-redis, optional
+    max_clients: 10 // defalut
+  }, {
+    host: '127.0.0.1',
+    port: 6379
   });
 
-redisPool.set('test-key', 'foobar', function (err) {
-  redisPool.get('test-key', function (err, reply) {
-    console.log(reply); // 'foobar'
-  });
-});
+redisPool.init();
+
+await redisPool.set('test-key', 'foobar');
 ```
 
 ## Implemented methods
 
   * **get**
 ```javascript
-get(key, cb)
+get(key)
 ```
 
   * **set**
 ```javascript
-set(key, value, callback)
+set(key, value)
 ```
 
   * **expire**
 ```javascript
-expire(key, value, callback)
+expire(key, value)
 ```
 
   * **del**
 ```javascript
-del(key, callback)
+del(key)
 ```
 
   * **hget**
 ```javascript
-hget(key, field, callback)
+hget(key, field)
 ```
 
   * **hgetall**
 ```javascript
-hgetall(key, callback)
+hgetall(key)
 ```
 
   * **hset**
 ```javascript
-hset(key, field, value, callback)
+hset(key, field, value)
 ```
 
   * **hdel**
 ```javascript
-hdel(key, [fields], callback)
+hdel(key, [fields])
 ```
 
   * **brpop**
 ```javascript
-brpop(key, cb)
+brpop(key)
 ```
 
  * **brpoplpush**
 ```javascript
-brpoplpush(key1, key2, callback)
+brpoplpush(key1, key2)
 ```
 
   * **blpop**
 ```javascript
-blpop(key, cb)
+blpop(key)
 ```
 
   * **rpush**
 ```javascript
-rpush(key, value, callback)
+rpush(key, value)
 ```
 
   * **lpush**
 ```javascript
-lpush(key, value, callback)
+lpush(key, value)
 ```
 
 
@@ -116,6 +110,3 @@ node-redis-connection-pool uses jsdoc-to-markdown to generate the [API.md](API.m
 ## License
 
 [MIT](https://github.com/silverbucket/node-redis-connection-pool/blob/master/LICENSE)
-
-
-

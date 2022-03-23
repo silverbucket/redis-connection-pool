@@ -1,6 +1,6 @@
 {
   "name": "redis-connection-pool",
-  "version": "1.7.4",
+  "version": "2.0.0",
   "description": "a redis client connection pool",
   "license": "MIT",
   "private": false,
@@ -12,23 +12,41 @@
     "pool",
     "manager"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "src/"
+  ],
   "author": {
     "name": "Nick Jennings",
     "email": "nick@silverbucket.net"
   },
-  "main": "./src/redis-connection-pool.js",
   "scripts": {
-    "test": "node_modules/.bin/jaribu",
-    "doc": "node_modules/.bin/jsdoc2md src/redis-connection-pool.js > API.md"
+    "build": "tsc",
+    "test": "jaribu",
+    "doc": "jsdoc2md --files ./src/index.ts --configure ./jsdoc2md.json > ./API.md"
   },
   "dependencies": {
-    "debug": "^4.3.1",
-    "generic-pool": "^3.7.8",
-    "redis": "^3.1.2"
+    "debug": "^4.3.4",
+    "generic-pool": "^3.8.2",
+    "redis": "^4.0.4"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.8",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/eslint": "^8.4.1",
+    "@types/generic-pool": "^3.1.10",
+    "@types/node": "^17.0.23",
+    "@types/redis": "^4.0.11",
+    "@typescript-eslint/parser": "^5.16.0",
+    "eslint": "^8.11.0",
     "jaribu": "2.2.3",
-    "jsdoc-to-markdown": "7.1.1"
+    "jsdoc-babel": "^0.5.0",
+    "jsdoc-to-markdown": "^7.1.1",
+    "typescript": "^4.6.2"
   },
   "repository": {
     "type": "git",
