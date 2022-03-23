@@ -34,6 +34,39 @@ const generic_pool_1 = require("generic-pool");
 const debug_1 = __importDefault(require("debug"));
 const log = (0, debug_1.default)('redis-connection-pool');
 const connectionPools = new Map();
+/**
+ * Function: redisConnectionPoolFactory
+ *
+ * A high-level redis management object. It manages a number of connections in
+ * a pool, using them as needed and keeping all aspects of releasing active
+ * connections internal to the object, so the user does not need to worry about
+ * forgotten connections leaking memory and building up over time.
+ *
+ * Parameters:
+ *
+ *   uid - (string) - Unique identifer to retreive an existing instance from
+ *                    elsewhere in an application. If left undefined, one will
+ *                    be generate automatically and avaialble via the `uid`
+ *                    property of the returned object.
+ *
+ *   cfg - (object) - A series of configuration parameters to be optionally
+ *                    passed in and used during initialization of the object.
+ *
+ *
+ *       cfg.max_clients - (number) - Max clients alive in the connection pool at
+ *                                once. (default: 30)
+ *
+ *       cfg.perform_checks - (boolean) - Perform a series of redis checks,
+ *                                    currently this checks to to see if
+ *                                    blocking push/pops can be used.
+ *                                    (default: false)
+ *
+ *   redisConfig - (object) - A redis config object
+ *
+ * Returns:
+ *
+ *   A RedisConnectionPool object
+ */
 function redisConnectionPoolFactory(uid, cfg = {}, redisCfg = {}) {
     if (!connectionPools.has(uid)) {
         connectionPools.set(uid, new RedisConnectionPool(uid, cfg, redisCfg));
