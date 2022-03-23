@@ -18,13 +18,13 @@
   },
   "main": "./src/redis-connection-pool.js",
   "scripts": {
-    "test": "node_modules/.bin/jaribu",
-    "doc": "node_modules/.bin/jsdoc2md src/redis-connection-pool.js > API.md"
+    "test": "jaribu",
+    "doc": "jsdoc2md src/redis-connection-pool.js > API.md"
   },
   "dependencies": {
-    "debug": "^4.3.1",
+    "debug": "^4.3.4",
     "generic-pool": "^3.7.8",
-    "redis": "^3.1.2"
+    "redis": "^4.0.4"
   },
   "devDependencies": {
     "jaribu": "2.2.3",
