@@ -1,4 +1,4 @@
 node_modules
 *~
-doc/.config/Menu_Backup.txt
 .idea
+dist
