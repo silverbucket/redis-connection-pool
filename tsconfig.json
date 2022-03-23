@@ -10,7 +10,6 @@
       "esnext"
     ],
     "types": [
-      "mocha",
       "node"
     ],
     "sourceMap": true,
@@ -28,7 +27,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "sourceRoot": "/",
-    "mapRoot": "/",
+    "mapRoot": "/"
   },
   "include": [
     "src"
