@@ -24,11 +24,12 @@ const connectionPools = new Map();
 export interface RedisConnectionPoolConfig {
   max_clients?: number;
   perform_checks?: boolean;
+  redis?: RedisClientOptions;
 }
 
-export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnectionPoolConfig = {}, redisCfg: RedisClientOptions = {}) {
+export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnectionPoolConfig) {
   if (! connectionPools.has(uid)) {
-    connectionPools.set(uid, new RedisConnectionPool(uid, cfg, redisCfg));
+    connectionPools.set(uid, new RedisConnectionPool(uid, cfg));
   }
   return connectionPools.get(uid);
 }
@@ -60,7 +61,7 @@ export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnec
  *                                    blocking push/pops can be used.
  *                                    (default: false)
  *
- *   redisConfig - (object) - A redis config object
+ *   cfg.redis - (object) - A redis config object
  *
  * Returns:
  *
@@ -70,21 +71,21 @@ export class RedisConnectionPool {
   uid: string;
   max_clients: number = 10;
   perform_checks: boolean = false;
-  redisCfg: RedisClientOptions;
+  redis: RedisClientOptions;
   pool: Pool<any>;
 
-  constructor(uid: string, cfg: RedisConnectionPoolConfig = {}, redisCfg: RedisClientOptions = {}) {
+  constructor(uid: string, cfg: RedisConnectionPoolConfig = {}) {
     this.uid = uid;
     this.max_clients = cfg.max_clients || this.max_clients;
     this.perform_checks = this.perform_checks || this.perform_checks;
-    this.redisCfg = redisCfg;
+    this.redis = cfg.redis;
   }
 
   async init() {
     this.pool = createPool({
       create: async () => {
         log('create');
-        const client = createClient(this.redisCfg);
+        const client = createClient(this.redis);
         client.on('error', function (err) {
           log(err);
         });
@@ -364,7 +365,7 @@ export class RedisConnectionPool {
    */
   async clean(key) {
     log('clearing redis key ' + key);
-    const client = createClient(this.redisCfg);
+    const client = createClient(this.redis);
     await client.connect();
 
     const keys = await client.keys(key);

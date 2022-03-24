@@ -35,10 +35,11 @@ define(['require'], function (require) {
         env.redisPool = env.RedisPool('redisPoolTests2', {
           max_clients: 60,
           perform_checks: true,
-        }, {
-          host: '127.0.0.1',
-          port: 6379,
-          database: 7
+          redis: {
+            host: '127.0.0.1',
+            port: 6379,
+            database: 7
+          }
         });
         test.assertTypeAnd(env.redisPool, 'object');
         test.assert(env.redisPool.uid, 'redisPoolTests2');
@@ -53,13 +54,14 @@ define(['require'], function (require) {
       run: function (env, test) {
         env.redisPool = env.RedisPool('redisPoolTests1234', {
           max_clients: 12,
-          perform_checks: true
-        }, {
-          host: '1.2.3.4',
-          port: 1234
+          perform_checks: true,
+          redis: {
+            host: '1.2.3.4',
+            port: 1234
+          }
         });
-        test.assertAnd(env.redisPool.redisCfg.host, '1.2.3.4');
-        test.assertAnd(env.redisPool.redisCfg.port, 1234);
+        test.assertAnd(env.redisPool.redis.host, '1.2.3.4');
+        test.assertAnd(env.redisPool.redis.port, 1234);
         test.assert(env.redisPool.max_clients, 12);
       },
       takedown: async function (env, test) {
@@ -72,12 +74,13 @@ define(['require'], function (require) {
       run: function (env, test) {
         env.redisPool = env.RedisPool('redisPoolTestsURL', {
           max_clients: 12,
-          perform_checks: true
-        }, {
-          url: 'redis://localhost:6379'
-        });
-        test.assertAnd(env.redisPool.redisCfg.url, 'redis://localhost:6379');
-        test.assertTypeAnd(env.redisPool.redisCfg.host, 'undefined');
+          perform_checks: true,
+          redis: {
+            url: 'redis://localhost:6379'
+          }}
+        );
+        test.assertAnd(env.redisPool.redis.url, 'redis://localhost:6379');
+        test.assertTypeAnd(env.redisPool.redis.host, 'undefined');
         test.assert(env.redisPool.max_clients, 12);
       },
       takedown: async function (env, test) {
@@ -111,20 +114,6 @@ define(['require'], function (require) {
         test.assertTypeAnd(env.redisPool.pool.available, 'number', 'available');
         test.assertType(env.redisPool.pool.pending, 'number', 'pending');
       }
-    // }, {
-    //   desc: '#check()',
-    //   timeout: 2000,
-    //   run: async function (env, test) {
-    //     const redisVersion = await env.redisPool.check();
-    //     test.assertType(redisVersion, 'string');
-    //   }
-    // }, {
-    //   desc: 'verify version properties are set',
-    //   timeout: 2000,
-    //   run: function (env, test) {
-    //     test.assertTypeAnd(env.redisPool.version_string, 'string');
-    //     test.assertType(env.redisPool.version_array, 'object');
-    //   }
     }, {
       desc: '#set',
       timeout: 2000,

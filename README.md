@@ -25,10 +25,11 @@ npm install redis-connection-pool
 
 ```javascript
 var redisPool = require('redis-connection-pool')('myRedisPool', {
-    max_clients: 10 // defalut
-  }, {
-    host: '127.0.0.1',
-    port: 6379
+    max_clients: 10, // defalut
+    redis: {
+      host: '127.0.0.1',
+      port: 6379
+    }
   });
 
 redisPool.init();
