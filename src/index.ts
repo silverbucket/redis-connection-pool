@@ -21,7 +21,7 @@ import debug from 'debug';
 const log = debug('redis-connection-pool')
 const connectionPools = new Map();
 
-interface RedisConnectionPoolConfig {
+export interface RedisConnectionPoolConfig {
   max_clients?: number;
   perform_checks?: boolean;
 }
