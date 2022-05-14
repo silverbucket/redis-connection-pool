@@ -288,11 +288,12 @@ export class RedisConnectionPool {
    *
    *   key  - (string) - A key to assign value to
    *   data - (string) - Value to assign to key
+   *   ttl  - (number) - TTL (Time to Live)
    *
    */
-  async set(key, data) {
+  async set(key, data, ttl) {
     const client = await this.pool.acquire();
-    const res = client.SET(key, data);
+    const res = client.SET(key, data, ttl);
     await this.pool.release(client);
     return res;
   };
