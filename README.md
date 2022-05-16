@@ -46,7 +46,7 @@ get(key)
 
   * **set**
 ```javascript
-set(key, value)
+set(key, value, ttl)
 ```
 
   * **expire**
