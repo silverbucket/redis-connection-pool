@@ -19,7 +19,7 @@ once. (default: 30)</p>
 currently this checks to to see if
 blocking push/pops can be used.
 (default: false)</p>
-<p>redisConfig - (object) - A redis config object</p>
+<p>cfg.redis - (object) - A redis config object</p>
 <p>Returns:</p>
 <p>A RedisConnectionPool object</p>
 
@@ -165,7 +165,8 @@ key2   - (string) - The push list key</p>
 <p>Execute a redis SET command</p>
 <p>Parameters:</p>
 <p>key  - (string) - A key to assign value to
-data - (string) - Value to assign to key</p>
+data - (string) - Value to assign to key
+ttl  - (number) - TTL (Time to Live)</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+hset"></a>

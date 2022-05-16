@@ -38,10 +38,10 @@
         "security-node"
     ],
     "extends": [
-//        "eslint:recommended",
+        "eslint:recommended",
         "plugin:security-node/recommended"
     ],
-    "ignorePatterns": ["*.d.ts", "*.test.ts", "*.data.js", "packages/platform-irc/index.js"],
+    "ignorePatterns": ["*.d.ts", "*.test.ts"],
     "overrides": [
         {
             "files": [
@@ -53,13 +53,9 @@
                     "./tsconfig.json"
                 ]
             },
-            "plugins": [
-                "@typescript-eslint",
-                "security-node"
+            "extends": [
+                "plugin:@typescript-eslint/recommended"
             ]
-//            "extends": [
-//                "plugin:@typescript-eslint/recommended"
-//            ]
         }
     ]
 }
