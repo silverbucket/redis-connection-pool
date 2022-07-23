@@ -116,7 +116,7 @@ export class RedisConnectionPool {
    *
    */
   async expire(key, data) {
-    return await this.singleCommand('EXPIRE', key, data);
+    return await this.singleCommand('EXPIRE', [key, data]);
   };
 
   /**
@@ -130,7 +130,7 @@ export class RedisConnectionPool {
    *
    */
   async del(key) {
-    return await this.singleCommand('DEL', key);
+    return await this.singleCommand('DEL', [key]);
   };
 
   /**
@@ -145,7 +145,7 @@ export class RedisConnectionPool {
    *
    */
   async hdel(key, fields) {
-    return await this.singleCommand('HDEL', key, fields);
+    return await this.singleCommand('HDEL', [key, fields]);
   };
 
   /**
@@ -159,9 +159,11 @@ export class RedisConnectionPool {
    *   command_name  - (string) - The redis command to execute
    *   args          - (array) - The arguments to the redis command
    *
+   * For eg:
+   *  send_command('HSET', ['firstRedisKey', 'key1', 'Hello Redis'] )
    */
   async send_command(command_name, args) {
-    return await this.singleCommand('send_command', command_name, args);
+    return await this.singleCommand(command_name, args);
   };
 
   /**
@@ -381,17 +383,9 @@ export class RedisConnectionPool {
     }
   };
 
-  private async singleCommand(funcName, key, val = undefined) {
+  private async singleCommand(funcName, functionParams) {
     const client = await this.pool.acquire();
-    let res;
-    if (funcName === 'hdel') {
-      const args = [key].concat(val);
-      res = await client[funcName](args);
-    } else if (val) {
-      res = await client[funcName](key, val)
-    } else {
-      res = await client[funcName](key);
-    }
+    const res = await client[funcName](...(functionParams || []));
     await this.pool.release(client);
     return res;
   }
