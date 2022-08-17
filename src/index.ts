@@ -14,11 +14,18 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-import {createClient, RedisClientOptions} from 'redis';
+import {
+  createClient,
+  RedisClientOptions,
+  RedisFunctions,
+  RedisModules,
+  RedisScripts,
+  RedisClientType
+} from 'redis';
 import {createPool, Pool}  from 'generic-pool';
 import debug from 'debug';
 
-const log = debug('redis-connection-pool')
+const log = debug('redis-connection-pool');
 const connectionPools = new Map();
 
 export interface RedisConnectionPoolConfig {
@@ -69,10 +76,10 @@ export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnec
  */
 export class RedisConnectionPool {
   uid: string;
-  max_clients: number = 10;
-  perform_checks: boolean = false;
+  max_clients = 10;
+  perform_checks = false;
   redis: RedisClientOptions;
-  pool: Pool<any>;
+  pool: Pool<RedisClientType<RedisModules, RedisFunctions, RedisScripts>>;
 
   constructor(uid: string, cfg: RedisConnectionPoolConfig = {}) {
     this.uid = uid;
@@ -97,7 +104,7 @@ export class RedisConnectionPool {
         return client;
       },
       destroy: async (client) => {
-        client.quit();
+        await client.quit();
       }
     }, {
       max: this.max_clients
@@ -117,7 +124,7 @@ export class RedisConnectionPool {
    */
   async expire(key, data) {
     return await this.singleCommand('EXPIRE', key, data);
-  };
+  }
 
   /**
    * Function: del
@@ -131,7 +138,7 @@ export class RedisConnectionPool {
    */
   async del(key) {
     return await this.singleCommand('DEL', key);
-  };
+  }
 
   /**
    * Function: hdel
@@ -146,7 +153,7 @@ export class RedisConnectionPool {
    */
   async hdel(key, fields) {
     return await this.singleCommand('HDEL', key, fields);
-  };
+  }
 
   /**
    * Function: send_command
@@ -162,7 +169,7 @@ export class RedisConnectionPool {
    */
   async send_command(command_name, args) {
     return await this.singleCommand('send_command', command_name, args);
-  };
+  }
 
   /**
    * Function: ttl
@@ -176,7 +183,7 @@ export class RedisConnectionPool {
    */
   async ttl(key) {
     return await this.getFuncs('TTL', key);
-  };
+  }
 
   /**
    * Function: get
@@ -190,7 +197,7 @@ export class RedisConnectionPool {
    */
   async get(key) {
     return await this.getFuncs('GET', key);
-  };
+  }
 
 
   /**
@@ -206,7 +213,7 @@ export class RedisConnectionPool {
    */
   async hget(key, field) {
     return await this.getFuncs('HGET', key, field);
-  };
+  }
 
   /**
    * Function: hgetall
@@ -220,7 +227,7 @@ export class RedisConnectionPool {
    */
   async hgetall(key) {
     return await this.getFuncs('HGETALL', key);
-  };
+  }
 
   /**
    * Function: blpop
@@ -234,7 +241,7 @@ export class RedisConnectionPool {
    */
   async blpop(key) {
     return await this.getFuncs('BLPOP', key);
-  };
+  }
 
   /**
    * Function: brpop
@@ -248,7 +255,7 @@ export class RedisConnectionPool {
    */
   async brpop(key) {
     return await this.getFuncs('BRPOP', key);
-  };
+  }
 
   /**
    * Function: brpoplpush
@@ -263,7 +270,7 @@ export class RedisConnectionPool {
    */
   async brpoplpush(key1, key2) {
     return await this.getFuncs('BRPOPLPUSH', [key1, key2]);
-  };
+  }
 
   /**
    * Function: incr
@@ -277,7 +284,7 @@ export class RedisConnectionPool {
    */
   async incr(key) {
     return await this.getFuncs('incr', key);
-  };
+  }
 
   /**
    * Function: set
@@ -296,7 +303,7 @@ export class RedisConnectionPool {
     const res = client.SET(key, data, ttl);
     await this.pool.release(client);
     return res;
-  };
+  }
 
   /**
    * Function: hset
@@ -315,7 +322,7 @@ export class RedisConnectionPool {
     const res = client.HSET(key, field, data);
     await this.pool.release(client);
     return res;
-  };
+  }
 
   /**
    * Function: rpush
@@ -333,7 +340,7 @@ export class RedisConnectionPool {
     const res = client.RPUSH(key, data);
     await this.pool.release(client);
     return res;
-  };
+  }
 
   /**
    * Function: lpush
@@ -352,7 +359,7 @@ export class RedisConnectionPool {
     const res = client.LPUSH(key, data);
     await this.pool.release(client);
     return res;
-  };
+  }
 
   /**
    * Function: clean
@@ -379,7 +386,7 @@ export class RedisConnectionPool {
     } else {
       log(`ERROR couldnt get keys list on key '${key}': `, keys);
     }
-  };
+  }
 
   private async singleCommand(funcName, key, val = undefined) {
     const client = await this.pool.acquire();
@@ -388,7 +395,7 @@ export class RedisConnectionPool {
       const args = [key].concat(val);
       res = await client[funcName](args);
     } else if (val) {
-      res = await client[funcName](key, val)
+      res = await client[funcName](key, val);
     } else {
       res = await client[funcName](key);
     }
@@ -402,8 +409,8 @@ export class RedisConnectionPool {
     if ((funcName === 'GET') || (funcName === 'HGETALL') ||
       (funcName === 'TTL') || (funcName === 'INCR')) {
       res = await client[funcName](key);
-    } else if ((funcName === 'BLPOP') || (funcName == 'BRPOP')) {
-      res = await client[funcName](key, 0)
+    } else if ((funcName === 'BLPOP') || (funcName === 'BRPOP')) {
+      res = await client[funcName](key, 0);
     } else if (funcName === 'BRPOPLPUSH') {
       res = await client.BRPOPLPUSH(key[0], key[1], 0);
     } else if (funcName === 'HGET') {
