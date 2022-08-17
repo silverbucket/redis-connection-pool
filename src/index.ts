@@ -17,7 +17,6 @@
 import {
   createClient,
   RedisClientOptions,
-  RedisFunctions,
   RedisModules,
   RedisScripts,
   RedisClientType
@@ -51,9 +50,9 @@ export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnec
  *
  * Parameters:
  *
- *   uid - (string) - Unique identifer to retreive an existing instance from
+ *   uid - (string) - Unique identifier to retrieve an existing instance from
  *                    elsewhere in an application. If left undefined, one will
- *                    be generate automatically and avaialble via the `uid`
+ *                    be generated automatically and available via the `uid`
  *                    property of the returned object.
  *
  *   cfg - (object) - A series of configuration parameters to be optionally
@@ -64,7 +63,7 @@ export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnec
  *                                once. (default: 30)
  *
  *   cfg.perform_checks - (boolean) - Perform a series of redis checks,
- *                                    currently this checks to to see if
+ *                                    currently this checks to see if
  *                                    blocking push/pops can be used.
  *                                    (default: false)
  *
@@ -79,7 +78,7 @@ export class RedisConnectionPool {
   max_clients = 10;
   perform_checks = false;
   redis: RedisClientOptions;
-  pool: Pool<RedisClientType<RedisModules, RedisFunctions, RedisScripts>>;
+  pool: Pool<RedisClientType<RedisModules, RedisScripts>>;
 
   constructor(uid: string, cfg: RedisConnectionPoolConfig = {}) {
     this.uid = uid;
@@ -377,14 +376,14 @@ export class RedisConnectionPool {
     await client.connect();
 
     const keys = await client.keys(key);
-    client.quit();
+    await client.quit();
     if ((keys) && (keys.forEach)) {
       keys.forEach((name) => {
         log('deleting name ' + name);
         this.del(name);
       });
     } else {
-      log(`ERROR couldnt get keys list on key '${key}': `, keys);
+      log(`ERROR couldn't get keys list on key '${key}': `, keys);
     }
   }
 
