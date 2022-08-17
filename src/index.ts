@@ -33,7 +33,12 @@ export interface RedisConnectionPoolConfig {
   redis?: RedisClientOptions;
 }
 
-export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnectionPoolConfig) {
+type Identifier = string;
+
+export default function redisConnectionPoolFactory(
+  uid: Identifier,
+  cfg: RedisConnectionPoolConfig
+): Map<Identifier, RedisConnectionPool> {
   if (! connectionPools.has(uid)) {
     connectionPools.set(uid, new RedisConnectionPool(uid, cfg));
   }
@@ -74,13 +79,13 @@ export default function redisConnectionPoolFactory(uid: string, cfg: RedisConnec
  *   A RedisConnectionPool object
  */
 export class RedisConnectionPool {
-  uid: string;
+  uid: Identifier;
   max_clients = 10;
   perform_checks = false;
   redis: RedisClientOptions;
   pool: Pool<RedisClientType<RedisModules, RedisScripts>>;
 
-  constructor(uid: string, cfg: RedisConnectionPoolConfig = {}) {
+  constructor(uid: Identifier, cfg: RedisConnectionPoolConfig = {}) {
     this.uid = uid;
     this.max_clients = cfg.max_clients || this.max_clients;
     this.perform_checks = this.perform_checks || this.perform_checks;
