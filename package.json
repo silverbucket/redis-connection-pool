@@ -24,6 +24,8 @@
   },
   "scripts": {
     "build": "tsc",
+    "lint:fix": "npx eslint --fix src/",
+    "lint": "npx eslint src/",
     "test": "npm run build && jaribu",
     "doc": "jsdoc2md --files ./src/index.ts --configure ./jsdoc2md.json > ./API.md"
   },
