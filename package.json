@@ -26,7 +26,7 @@
     "build": "tsc",
     "lint:fix": "npx eslint --fix src/",
     "lint": "npx eslint src/",
-    "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts src/**/*.test.ts",
+    "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts",
     "integration": "yarn run build && jaribu",
     "doc": "jsdoc2md --files ./src/index.ts --configure ./jsdoc2md.json > ./API.md"
   },

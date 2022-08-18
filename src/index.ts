@@ -40,7 +40,7 @@ type IdentifierType = string;
 export default function redisConnectionPoolFactory(
   uid: IdentifierType,
   cfg: RedisConnectionPoolConfig
-): Map<IdentifierType, RedisConnectionPool> {
+): RedisConnectionPool {
   if (! connectionPools.has(uid)) {
     connectionPools.set(uid, new RedisConnectionPool(uid, cfg));
   }
