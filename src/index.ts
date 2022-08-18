@@ -33,12 +33,14 @@ export interface RedisConnectionPoolConfig {
   redis?: RedisClientOptions;
 }
 
-type Identifier = string;
+type FuncNameType = 'HDEL' | 'DEL' | 'GET' | 'HGETALL' | 'TTL' | 'INCR' |
+  'BRPOP' | 'HGET' | 'BLPOP' | 'BRPOPLPUSH' | 'EXPIRE'
+type IdentifierType = string;
 
 export default function redisConnectionPoolFactory(
-  uid: Identifier,
+  uid: IdentifierType,
   cfg: RedisConnectionPoolConfig
-): Map<Identifier, RedisConnectionPool> {
+): Map<IdentifierType, RedisConnectionPool> {
   if (! connectionPools.has(uid)) {
     connectionPools.set(uid, new RedisConnectionPool(uid, cfg));
   }
@@ -79,13 +81,13 @@ export default function redisConnectionPoolFactory(
  *   A RedisConnectionPool object
  */
 export class RedisConnectionPool {
-  uid: Identifier;
+  uid: IdentifierType;
   max_clients = 10;
   perform_checks = false;
   redis: RedisClientOptions;
   pool: Pool<RedisClientType<RedisModules, RedisScripts>>;
 
-  constructor(uid: Identifier, cfg: RedisConnectionPoolConfig = {}) {
+  constructor(uid: IdentifierType, cfg: RedisConnectionPoolConfig = {}) {
     this.uid = uid;
     this.max_clients = cfg.max_clients || this.max_clients;
     this.perform_checks = this.perform_checks || this.perform_checks;
@@ -123,11 +125,11 @@ export class RedisConnectionPool {
    * Parameters:
    *
    *   key   - (string) - A key to assign value to
-   *   value - (number) - TTL in seconds
+   *   ttl   - (number) - TTL in seconds
    *
    */
-  async expire(key, data) {
-    return await this.singleCommand('EXPIRE', key, data);
+  async expire(key: string, ttl: number) {
+    return await this.singleCommand('EXPIRE', key, ttl);
   }
 
   /**
@@ -140,7 +142,7 @@ export class RedisConnectionPool {
    *   key  - (string) - The key of the value you wish to delete
    *
    */
-  async del(key) {
+  async del(key: string) {
     return await this.singleCommand('DEL', key);
   }
 
@@ -152,27 +154,11 @@ export class RedisConnectionPool {
    * Parameters:
    *
    *   key  - (string) - The key of the value you wish to delete
-   *   fields  - [string] - The field names to be deleted
+   *   fields  - [string] - Array of field names to be deleted
    *
    */
-  async hdel(key, fields) {
+  async hdel(key: string, fields: Array<string>) {
     return await this.singleCommand('HDEL', key, fields);
-  }
-
-  /**
-   * Function: send_command
-   *
-   * Sends an explicit command to the redis server. Helpful for new commands in redis
-   *   that aren't supported yet by this JS API.
-   *
-   * Parameters:
-   *
-   *   command_name  - (string) - The redis command to execute
-   *   args          - (array) - The arguments to the redis command
-   *
-   */
-  async send_command(command_name, args) {
-    return await this.singleCommand('send_command', command_name, args);
   }
 
   /**
@@ -185,7 +171,7 @@ export class RedisConnectionPool {
    *   key   - (string) - A key whose TTL(time-to-expire) has to be returned
    *
    */
-  async ttl(key) {
+  async ttl(key: string) {
     return await this.getFuncs('TTL', key);
   }
 
@@ -199,7 +185,7 @@ export class RedisConnectionPool {
    *   key  - (string) - The key of the value you wish to get
    *
    */
-  async get(key) {
+  async get(key: string) {
     return await this.getFuncs('GET', key);
   }
 
@@ -215,7 +201,7 @@ export class RedisConnectionPool {
    *   field - (string) - The field name to retrieve
    *
    */
-  async hget(key, field) {
+  async hget(key: string, field: string) {
     return await this.getFuncs('HGET', key, field);
   }
 
@@ -229,7 +215,7 @@ export class RedisConnectionPool {
    *   key   - (string) - The key of the hash you wish to get
    *
    */
-  async hgetall(key) {
+  async hgetall(key: string) {
     return await this.getFuncs('HGETALL', key);
   }
 
@@ -243,7 +229,7 @@ export class RedisConnectionPool {
    *   key   - (string) - The list key
    *
    */
-  async blpop(key) {
+  async blpop(key: string) {
     return await this.getFuncs('BLPOP', key);
   }
 
@@ -257,7 +243,7 @@ export class RedisConnectionPool {
    *   key   - (string) - The list key
    *
    */
-  async brpop(key) {
+  async brpop(key: string) {
     return await this.getFuncs('BRPOP', key);
   }
 
@@ -272,8 +258,8 @@ export class RedisConnectionPool {
    *   key2   - (string) - The push list key
    *
    */
-  async brpoplpush(key1, key2) {
-    return await this.getFuncs('BRPOPLPUSH', [key1, key2]);
+  async brpoplpush(key1: string, key2: string) {
+    return await this.getFuncs('BRPOPLPUSH', key1, key2);
   }
 
   /**
@@ -286,8 +272,8 @@ export class RedisConnectionPool {
    *   key   - (string) - A key whose value you wish to increment
    *
    */
-  async incr(key) {
-    return await this.getFuncs('incr', key);
+  async incr(key: string) {
+    return await this.getFuncs('INCR', key);
   }
 
   /**
@@ -299,12 +285,12 @@ export class RedisConnectionPool {
    *
    *   key  - (string) - A key to assign value to
    *   data - (string) - Value to assign to key
-   *   ttl  - (number) - TTL (Time to Live)
+   *   ttl  - (number) - optional TTL (Time to Live) in seconds
    *
    */
-  async set(key, data, ttl) {
+  async set(key: string, data: string, ttl = 0) {
     const client = await this.pool.acquire();
-    const res = client.SET(key, data, ttl);
+    const res = client.SET(key, data, { "EX": ttl });
     await this.pool.release(client);
     return res;
   }
@@ -321,7 +307,7 @@ export class RedisConnectionPool {
    *   data  - (string) - Value to assign to hash
    *
    */
-  async hset(key, field, data) {
+  async hset(key: string, field: string, data: never) {
     const client = await this.pool.acquire();
     const res = client.HSET(key, field, data);
     await this.pool.release(client);
@@ -339,7 +325,7 @@ export class RedisConnectionPool {
    *   data  - (string) - Value to assign to the list
    *
    */
-  async rpush(key, data) {
+  async rpush(key: string, data: never) {
     const client = await this.pool.acquire();
     const res = client.RPUSH(key, data);
     await this.pool.release(client);
@@ -355,10 +341,9 @@ export class RedisConnectionPool {
    *
    *   key   - (string) - The list key
    *   data  - (string) - Value to assign to the list
-   *   cb    - (function) - Callback to be executed on completion
    *
    */
-  async lpush(key, data) {
+  async lpush(key: string, data: never) {
     const client = await this.pool.acquire();
     const res = client.LPUSH(key, data);
     await this.pool.release(client);
@@ -375,15 +360,15 @@ export class RedisConnectionPool {
    *   key  - (string) - The key of the value you wish to clear (can use wildcard *)
    *
    */
-  async clean(key) {
+  async clean(key: string) {
     log('clearing redis key ' + key);
     const client = createClient(this.redis);
     await client.connect();
 
     const keys = await client.keys(key);
     await client.quit();
-    if ((keys) && (keys.forEach)) {
-      keys.forEach((name) => {
+    if (Array.isArray(keys)) {
+      await keys.forEach((name) => {
         log('deleting name ' + name);
         this.del(name);
       });
@@ -392,22 +377,29 @@ export class RedisConnectionPool {
     }
   }
 
-  private async singleCommand(funcName, key, val = undefined) {
+  private async singleCommand(
+    funcName: FuncNameType,
+    key: string,
+    val = undefined
+  ) {
     const client = await this.pool.acquire();
     let res;
-    if (funcName === 'hdel') {
-      const args = [key].concat(val);
-      res = await client[funcName](args);
-    } else if (val) {
+    if (val) {
+      log(`calling ${funcName} function with ${key}, ${val}`);
       res = await client[funcName](key, val);
     } else {
+      log(`calling ${funcName} function with ${key}`);
       res = await client[funcName](key);
     }
     await this.pool.release(client);
     return res;
   }
 
-  private async getFuncs(funcName, key, field = undefined) {
+  private async getFuncs(
+    funcName: FuncNameType,
+    key: string,
+    field: string | undefined = undefined
+  ) {
     const client = await this.pool.acquire();
     let res;
     if ((funcName === 'GET') || (funcName === 'HGETALL') ||
@@ -416,7 +408,7 @@ export class RedisConnectionPool {
     } else if ((funcName === 'BLPOP') || (funcName === 'BRPOP')) {
       res = await client[funcName](key, 0);
     } else if (funcName === 'BRPOPLPUSH') {
-      res = await client.BRPOPLPUSH(key[0], key[1], 0);
+      res = await client.BRPOPLPUSH(key, field, 0);
     } else if (funcName === 'HGET') {
       res = await client.HGET(key, field);
     }
