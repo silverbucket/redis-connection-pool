@@ -180,7 +180,6 @@ define(['require'], function (require) {
       run: async function (env, test) {
         setTimeout(async () => {
           const res = await env.redisPool.blpop(env.channel + 'testlist1');
-          console.log('blpop1:', res);
           test.assert(res, {key: env.channel + 'testlist1', element: 'foo'});
         }, 0);
       }
@@ -219,7 +218,6 @@ define(['require'], function (require) {
       run: async function (env, test) {
         setTimeout(async () => {
           const res = await env.redisPool.brpop(env.channel + 'testlist2');
-          console.log('brpop2:', res);
           test.assert(res, {key: env.channel + 'testlist2', element: 'bar'});
         }, 0);
       }
