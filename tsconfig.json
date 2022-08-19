@@ -10,7 +10,7 @@
       "esnext"
     ],
     "types": [
-      "node"
+      "node", "mocha"
     ],
     "sourceMap": true,
     "declaration": true,
