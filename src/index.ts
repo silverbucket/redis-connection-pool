@@ -129,7 +129,7 @@ export class RedisConnectionPool {
    *
    */
   async expire(key: string, ttl: number) {
-    return await this.singleCommand('EXPIRE', key, ttl);
+    return await this.singleCommand('EXPIRE', [key, ttl]);
   }
 
   /**
@@ -143,7 +143,7 @@ export class RedisConnectionPool {
    *
    */
   async del(key: string) {
-    return await this.singleCommand('DEL', key);
+    return await this.singleCommand('DEL', [key]);
   }
 
   /**
@@ -158,8 +158,27 @@ export class RedisConnectionPool {
    *
    */
   async hdel(key: string, fields: Array<string>) {
-    return await this.singleCommand('HDEL', key, fields);
+    return await this.singleCommand('HDEL', [key, fields]);
   }
+
+  /**
+   * Function: send_command
+   *
+   * Sends an explicit command to the redis server. Helpful for new commands in redis
+   *   that aren't supported yet by this JS API.
+   *
+   * Parameters:
+   *
+   *   command_name  - (string) - The redis command to execute
+   *   args          - (array) - The arguments to the redis command
+   *
+   * For eg:
+   *  send_command('HSET', ['firstRedisKey', 'key1', 'Hello Redis'] )
+   */
+  async send_command(command_name, args) {
+    return await this.singleCommand(command_name, args);
+  }
+
 
   /**
    * Function: ttl
@@ -377,20 +396,9 @@ export class RedisConnectionPool {
     }
   }
 
-  private async singleCommand(
-    funcName: FuncNameType,
-    key: string,
-    val = undefined
-  ) {
+  private async singleCommand(funcName: FuncNameType, functionParams: Array<any>) {
     const client = await this.pool.acquire();
-    let res;
-    if (val) {
-      log(`calling ${funcName} function with ${key}, ${val}`);
-      res = await client[funcName](key, val);
-    } else {
-      log(`calling ${funcName} function with ${key}`);
-      res = await client[funcName](key);
-    }
+    const res = await client[funcName](...(functionParams || []));
     await this.pool.release(client);
     return res;
   }
