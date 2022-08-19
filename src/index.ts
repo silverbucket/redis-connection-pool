@@ -130,7 +130,7 @@ export class RedisConnectionPool {
    */
   async expire(key: string, ttl: number) {
     return await this.singleCommand('EXPIRE', [key, ttl]);
-  };
+  }
 
   /**
    * Function: del
@@ -144,7 +144,7 @@ export class RedisConnectionPool {
    */
   async del(key: string) {
     return await this.singleCommand('DEL', [key]);
-  };
+  }
 
   /**
    * Function: hdel
@@ -159,7 +159,7 @@ export class RedisConnectionPool {
    */
   async hdel(key: string, fields: Array<string>) {
     return await this.singleCommand('HDEL', [key, fields]);
-  };
+  }
 
   /**
    * Function: send_command
@@ -177,7 +177,7 @@ export class RedisConnectionPool {
    */
   async send_command(command_name, args) {
     return await this.singleCommand(command_name, args);
-  };
+  }
 
 
   /**
@@ -396,7 +396,7 @@ export class RedisConnectionPool {
     }
   }
 
-  private async singleCommand(funcName: FuncNameType, functionParams: Array<never>) {
+  private async singleCommand(funcName: FuncNameType, functionParams: Array<any>) {
     const client = await this.pool.acquire();
     const res = await client[funcName](...(functionParams || []));
     await this.pool.release(client);
