@@ -178,8 +178,11 @@ define(['require'], function (require) {
     }, {
       desc: '#blpop 1',
       run: async function (env, test) {
-        const res = await env.redisPool.blpop(env.channel + 'testlist1');
-        test.assert(res, {key: env.channel + 'testlist1', element: 'foo'});
+        setTimeout(async () => {
+          const res = await env.redisPool.blpop(env.channel + 'testlist1');
+          console.log('blpop1:', res);
+          test.assert(res, {key: env.channel + 'testlist1', element: 'foo'});
+        }, 0);
       }
     }, {
       desc: '#brpop 1',
@@ -214,8 +217,11 @@ define(['require'], function (require) {
     }, {
       desc: '#brpop 2',
       run: async function (env, test) {
-        const res = await env.redisPool.brpop(env.channel + 'testlist2');
-        test.assert(res, {key: env.channel + 'testlist2', element: 'bar'});
+        setTimeout(async () => {
+          const res = await env.redisPool.brpop(env.channel + 'testlist2');
+          console.log('brpop2:', res);
+          test.assert(res, {key: env.channel + 'testlist2', element: 'bar'});
+        }, 0);
       }
     }, {
       desc: '#expire',

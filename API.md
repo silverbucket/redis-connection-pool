@@ -7,16 +7,16 @@ a pool, using them as needed and keeping all aspects of releasing active
 connections internal to the object, so the user does not need to worry about
 forgotten connections leaking memory and building up over time.</p>
 <p>Parameters:</p>
-<p>uid - (string) - Unique identifer to retreive an existing instance from
+<p>uid - (string) - Unique identifier to retrieve an existing instance from
 elsewhere in an application. If left undefined, one will
-be generate automatically and avaialble via the <code>uid</code>
+be generated automatically and available via the <code>uid</code>
 property of the returned object.</p>
 <p>cfg - (object) - A series of configuration parameters to be optionally
 passed in and used during initialization of the object.</p>
 <p>cfg.max_clients - (number) - Max clients alive in the connection pool at
 once. (default: 30)</p>
 <p>cfg.perform_checks - (boolean) - Perform a series of redis checks,
-currently this checks to to see if
+currently this checks to see if
 blocking push/pops can be used.
 (default: false)</p>
 <p>cfg.redis - (object) - A redis config object</p>
@@ -29,7 +29,6 @@ blocking push/pops can be used.
     * [.expire()](#RedisConnectionPool+expire)
     * [.del()](#RedisConnectionPool+del)
     * [.hdel()](#RedisConnectionPool+hdel)
-    * [.send_command()](#RedisConnectionPool+send_command)
     * [.ttl()](#RedisConnectionPool+ttl)
     * [.get()](#RedisConnectionPool+get)
     * [.hget()](#RedisConnectionPool+hget)
@@ -51,7 +50,7 @@ blocking push/pops can be used.
 <p>Execute a redis EXPIRE command</p>
 <p>Parameters:</p>
 <p>key   - (string) - A key to assign value to
-value - (number) - TTL in seconds</p>
+ttl   - (number) - TTL in seconds</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+del"></a>
@@ -70,18 +69,7 @@ value - (number) - TTL in seconds</p>
 <p>Execute a redis HDEL command</p>
 <p>Parameters:</p>
 <p>key  - (string) - The key of the value you wish to delete
-fields  - [string] - The field names to be deleted</p>
-
-**Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
-<a name="RedisConnectionPool+send_command"></a>
-
-### redisConnectionPool.send\_command()
-<p>Function: send_command</p>
-<p>Sends an explicit command to the redis server. Helpful for new commands in redis
-that aren't supported yet by this JS API.</p>
-<p>Parameters:</p>
-<p>command_name  - (string) - The redis command to execute
-args          - (array) - The arguments to the redis command</p>
+fields  - [string] - Array of field names to be deleted</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+ttl"></a>
@@ -166,7 +154,7 @@ key2   - (string) - The push list key</p>
 <p>Parameters:</p>
 <p>key  - (string) - A key to assign value to
 data - (string) - Value to assign to key
-ttl  - (number) - TTL (Time to Live)</p>
+ttl  - (number) - optional TTL (Time to Live) in seconds</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+hset"></a>
@@ -197,8 +185,7 @@ data  - (string) - Value to assign to the list</p>
 <p>Execute a redis LPUSH command</p>
 <p>Parameters:</p>
 <p>key   - (string) - The list key
-data  - (string) - Value to assign to the list
-cb    - (function) - Callback to be executed on completion</p>
+data  - (string) - Value to assign to the list</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+clean"></a>
