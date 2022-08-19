@@ -1,9 +1,0 @@
-language: node_js
-node_js:
-  - 15
-  - 16
-services:
-  - redis-server
-script: npm test
-install:
-  - npm install
