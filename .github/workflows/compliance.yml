@@ -33,3 +33,28 @@ jobs:
         run: npm run build
       - name: Test
         run: npm run test
+
+  integration:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 14, 16, 18 ]
+        redis-version: [ 4, 5 ]
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Start Redis v${{ matrix.redis-version }}
+        uses: superchargejs/redis-github-action@1.1.0
+        with:
+          redis-version: ${{ matrix.redis-version }}
+
+      - run: npm install
+      - run: npm run build
+      - run: npm run integration
