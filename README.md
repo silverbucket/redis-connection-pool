@@ -8,10 +8,10 @@ A node.js connection pool for Redis.
 [![downloads](http://img.shields.io/npm/dm/redis-connection-pool.svg?style=flat)](https://npmjs.org/package/redis-connection-pool)
 
 ## About
-  node-redis-connection-pool is a high-level redis management object. It manages
+
+  A high-level redis connection pooling object. It manages
 a number of connections in a pool, using them as needed and keeping all aspects
-of releasing active connections internal to the object, so the user does not
-need to worry about forgotten connections leaking resources.
+of releasing active connections internal to the object.
 
 ## Installation
 
@@ -43,85 +43,38 @@ const redisPool = new RedisConnectionPool();
 await redisPool.init();
 ```
 
-## Implemented methods
-
-  * **get**
+When you are done
 ```javascript
-get(key)
+redisPool.shutdown();
 ```
 
-  * **set**
-```javascript
-set(key, value, ttl)
-```
+## Implemented Redis methods
 
-  * **expire**
-```javascript
-expire(key, value)
-```
+* **del**
+* **blpop**
+* **brpop**
+* **brpoplpush**
+* **expire**
+* **get**
+* **hget**
+* **hgetall**
+* **hset**
+* **hdel**
+* **incr**
+* **lpush**
+* **rpush**
+* **set**
+* **sendCommand**
+* **ttl**
 
-  * **del**
-```javascript
-del(key)
-```
+## Additional methods
 
-  * **hget**
-```javascript
-hget(key, field)
-```
-
-  * **hgetall**
-```javascript
-hgetall(key)
-```
-
-  * **hset**
-```javascript
-hset(key, field, value)
-```
-
-  * **hdel**
-```javascript
-hdel(key, [fields])
-```
-
-  * **brpop**
-```javascript
-brpop(key)
-```
-
- * **brpoplpush**
-```javascript
-brpoplpush(key1, key2)
-```
-
-  * **blpop**
-```javascript
-blpop(key)
-```
-
-  * **rpush**
-```javascript
-rpush(key, value)
-```
-
-  * **lpush**
-```javascript
-lpush(key, value)
-```
-
-  * **sendCommand**
-```javascript
-sendCommand(commandName, [args])
-```
-
+* **init**
 * **shutdown**
-```javascript
-shutdown()
-```
+
 
 ## API Documentation
-node-redis-connection-pool uses jsdoc-to-markdown to generate the [API.md](API.md) from the source code.
+For the full documentation on the `RedisConnectionPool` class, see [API.md](API.md).
 
 ## License
 
