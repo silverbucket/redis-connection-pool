@@ -24,7 +24,9 @@ function createPoolFake(factory, opts) {
     acquire: async () => {
       return clientFake;
     },
-    release: async () => {}
+    release: async () => {},
+    drain: sinon.stub(),
+    clear: sinon.stub()
   }
 }
 
@@ -42,15 +44,15 @@ const redisConnectionPoolFactory = NRCPMod.default;
 describe('redisConnectionPoolFactory', () => {
   let pool;
 
-  beforeEach(() => {
-    pool = redisConnectionPoolFactory('foo', {
+  beforeEach(async () => {
+    pool = await redisConnectionPoolFactory('foo', {
       max_clients: 99,
       redis: {
         host: 'some host',
         port: 876
       }
     });
-    expect(pool.uid).to.equal('foo');
+    expect(pool.max_clients).to.equal(99);
     for (const key of Object.keys(clientFake)) {
       clientFake[key].reset();
     }
@@ -62,7 +64,6 @@ describe('redisConnectionPoolFactory', () => {
   });
 
   it('can initialize pool', () => {
-    expect(pool.pool).to.be.undefined;
     pool.init();
     expect(typeof pool.pool).to.equal('object');
   });
@@ -143,15 +144,7 @@ describe('redisConnectionPoolFactory', () => {
     sinon.assert.calledWith(clientFake.DEL, 'hummus');
   });
 
-  it('clean', async () => {
-    clientFake.keys.returns(['foo', 'bar']);
-    pool.del = sinon.stub();
-    await pool.clean();
-    sinon.assert.calledOnce(clientFake.connect);
-    sinon.assert.calledOnce(clientFake.quit);
-    sinon.assert.calledOnce(clientFake.keys);
-    sinon.assert.calledTwice(pool.del);
-    sinon.assert.calledWith(pool.del, 'foo');
-    sinon.assert.calledWith(pool.del, 'bar');
-  })
+  it('shutdown', async () => {
+    await pool.shutdown();
+  });
 });

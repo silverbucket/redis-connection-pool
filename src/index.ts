@@ -34,18 +34,8 @@ export interface RedisConnectionPoolConfig {
 }
 
 type FuncNameType = 'HDEL' | 'DEL' | 'GET' | 'HGETALL' | 'TTL' | 'INCR' |
-  'BRPOP' | 'HGET' | 'BLPOP' | 'BRPOPLPUSH' | 'EXPIRE'
+  'BRPOP' | 'HGET' | 'BLPOP' | 'BRPOPLPUSH' | 'EXPIRE' | 'KEYS'
 type IdentifierType = string;
-
-export default function redisConnectionPoolFactory(
-  uid: IdentifierType,
-  cfg: RedisConnectionPoolConfig
-): RedisConnectionPool {
-  if (! connectionPools.has(uid)) {
-    connectionPools.set(uid, new RedisConnectionPool(uid, cfg));
-  }
-  return connectionPools.get(uid);
-}
 
 /**
  * Function: redisConnectionPoolFactory
@@ -69,28 +59,38 @@ export default function redisConnectionPoolFactory(
  *   cfg.max_clients - (number) - Max clients alive in the connection pool at
  *                                once. (default: 30)
  *
- *   cfg.perform_checks - (boolean) - Perform a series of redis checks,
- *                                    currently this checks to see if
- *                                    blocking push/pops can be used.
- *                                    (default: false)
- *
  *   cfg.redis - (object) - A redis config object
  *
  * Returns:
  *
  *   A RedisConnectionPool object
  */
+export default async function redisConnectionPoolFactory(
+  uid: IdentifierType,
+  cfg: RedisConnectionPoolConfig = {}
+): Promise<RedisConnectionPool> {
+  let pool;
+  if (! connectionPools.has(uid)) {
+    pool = new RedisConnectionPool(cfg);
+    connectionPools.set(uid, pool);
+    await pool.init();
+  } else {
+    pool = connectionPools.get(uid);
+  }
+  return pool;
+}
+
+/**
+ * RedisConnectionPool
+ */
 export class RedisConnectionPool {
-  uid: IdentifierType;
-  max_clients = 10;
-  perform_checks = false;
+  max_clients = 5;
   redis: RedisClientOptions;
   pool: Pool<RedisClientType<RedisModules, RedisScripts>>;
+  private initializing = false;
 
-  constructor(uid: IdentifierType, cfg: RedisConnectionPoolConfig = {}) {
-    this.uid = uid;
+  constructor(cfg: RedisConnectionPoolConfig = {}) {
     this.max_clients = cfg.max_clients || this.max_clients;
-    this.perform_checks = this.perform_checks || this.perform_checks;
     this.redis = cfg.redis;
   }
 
@@ -98,15 +98,26 @@ export class RedisConnectionPool {
     this.pool = createPool({
       create: async () => {
         log('create');
+        if (this.initializing) {
+          log(
+            'Create method already called. (Redis config error? ' +
+            'or maybe you forgot to await the init function?)');
+          throw Error(
+            'Create method already called. (Redis config error? ' +
+            'or maybe you forgot to await the init function?)');
+        } else {
+          this.initializing = true;
+        }
         const client = createClient(this.redis);
-        client.on('error', function (err) {
-          log(err);
+        client.on('error', (err) => {
+          throw new Error(err);
         });
         client.on('ready', () => {
           log('ready');
         });
         log('connecting');
         await client.connect();
+        this.initializing = false;
         return client;
       },
       destroy: async (client) => {
@@ -147,6 +158,20 @@ export class RedisConnectionPool {
   }
 
   /**
+   * Function: keys
+   *
+   * Execute a redis KEYS command
+   *
+   * Parameters:
+   *
+   *   key  - (string) - The prefix of the keys to return
+   *
+   */
+  async keys(key: string) {
+    return await this.singleCommand('KEYS', [key]);
+  }
+
+  /**
    * Function: hdel
    *
    * Execute a redis HDEL command
@@ -162,7 +187,7 @@ export class RedisConnectionPool {
   }
 
   /**
-   * Function: send_command
+   * Function: sendCommand
    *
    * Sends an explicit command to the redis server. Helpful for new commands in redis
    *   that aren't supported yet by this JS API.
@@ -175,7 +200,7 @@ export class RedisConnectionPool {
    * For eg:
    *  send_command('HSET', ['firstRedisKey', 'key1', 'Hello Redis'] )
    */
-  async send_command(command_name, args) {
+  async sendCommand(command_name, args) {
     return await this.singleCommand(command_name, args);
   }
 
@@ -370,30 +395,14 @@ export class RedisConnectionPool {
   }
 
   /**
-   * Function: clean
+   * Function: shutdown
    *
-   * Clean the redis key namespace
-   *
-   * Parameters:
-   *
-   *   key  - (string) - The key of the value you wish to clear (can use wildcard *)
+   * Drain the pool and close all connections to Redis.
    *
    */
-  async clean(key: string) {
-    log('clearing redis key ' + key);
-    const client = createClient(this.redis);
-    await client.connect();
-
-    const keys = await client.keys(key);
-    await client.quit();
-    if (Array.isArray(keys)) {
-      await keys.forEach((name) => {
-        log('deleting name ' + name);
-        this.del(name);
-      });
-    } else {
-      log(`ERROR couldn't get keys list on key '${key}': `, keys);
-    }
+  async shutdown() {
+    await this.pool.drain();
+    await this.pool.clear();
   }
 
   private async singleCommand(funcName: FuncNameType, functionParams: Array<any>) {
