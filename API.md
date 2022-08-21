@@ -1,7 +1,15 @@
-<a name="RedisConnectionPool"></a>
+## Classes
 
-## RedisConnectionPool
-<p>Function: redisConnectionPoolFactory</p>
+<dl>
+<dt><a href="#RedisConnectionPool">RedisConnectionPool</a></dt>
+<dd><p>RedisConnectionPool</p></dd>
+</dl>
+
+## Functions
+
+<dl>
+<dt><a href="#redisConnectionPoolFactory">redisConnectionPoolFactory()</a></dt>
+<dd><p>Function: redisConnectionPoolFactory</p>
 <p>A high-level redis management object. It manages a number of connections in
 a pool, using them as needed and keeping all aspects of releasing active
 connections internal to the object, so the user does not need to worry about
@@ -15,20 +23,24 @@ property of the returned object.</p>
 passed in and used during initialization of the object.</p>
 <p>cfg.max_clients - (number) - Max clients alive in the connection pool at
 once. (default: 30)</p>
-<p>cfg.perform_checks - (boolean) - Perform a series of redis checks,
-currently this checks to see if
-blocking push/pops can be used.
-(default: false)</p>
 <p>cfg.redis - (object) - A redis config object</p>
 <p>Returns:</p>
-<p>A RedisConnectionPool object</p>
+<p>A RedisConnectionPool object</p></dd>
+</dl>
+
+<a name="RedisConnectionPool"></a>
+
+## RedisConnectionPool
+<p>RedisConnectionPool</p>
 
 **Kind**: global class  
 
 * [RedisConnectionPool](#RedisConnectionPool)
     * [.expire()](#RedisConnectionPool+expire)
     * [.del()](#RedisConnectionPool+del)
+    * [.keys()](#RedisConnectionPool+keys)
     * [.hdel()](#RedisConnectionPool+hdel)
+    * [.sendCommand()](#RedisConnectionPool+sendCommand)
     * [.ttl()](#RedisConnectionPool+ttl)
     * [.get()](#RedisConnectionPool+get)
     * [.hget()](#RedisConnectionPool+hget)
@@ -41,7 +53,7 @@ blocking push/pops can be used.
     * [.hset()](#RedisConnectionPool+hset)
     * [.rpush()](#RedisConnectionPool+rpush)
     * [.lpush()](#RedisConnectionPool+lpush)
-    * [.clean()](#RedisConnectionPool+clean)
+    * [.shutdown()](#RedisConnectionPool+shutdown)
 
 <a name="RedisConnectionPool+expire"></a>
 
@@ -62,6 +74,15 @@ ttl   - (number) - TTL in seconds</p>
 <p>key  - (string) - The key of the value you wish to delete</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
+<a name="RedisConnectionPool+keys"></a>
+
+### redisConnectionPool.keys()
+<p>Function: keys</p>
+<p>Execute a redis KEYS command</p>
+<p>Parameters:</p>
+<p>key  - (string) - The prefix of the keys to return</p>
+
+**Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+hdel"></a>
 
 ### redisConnectionPool.hdel()
@@ -70,6 +91,19 @@ ttl   - (number) - TTL in seconds</p>
 <p>Parameters:</p>
 <p>key  - (string) - The key of the value you wish to delete
 fields  - [string] - Array of field names to be deleted</p>
+
+**Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
+<a name="RedisConnectionPool+sendCommand"></a>
+
+### redisConnectionPool.sendCommand()
+<p>Function: sendCommand</p>
+<p>Sends an explicit command to the redis server. Helpful for new commands in redis
+that aren't supported yet by this JS API.</p>
+<p>Parameters:</p>
+<p>command_name  - (string) - The redis command to execute
+args          - (array) - The arguments to the redis command</p>
+<p>For eg:
+send_command('HSET', ['firstRedisKey', 'key1', 'Hello Redis'] )</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
 <a name="RedisConnectionPool+ttl"></a>
@@ -188,12 +222,32 @@ data  - (string) - Value to assign to the list</p>
 data  - (string) - Value to assign to the list</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
-<a name="RedisConnectionPool+clean"></a>
+<a name="RedisConnectionPool+shutdown"></a>
 
-### redisConnectionPool.clean()
-<p>Function: clean</p>
-<p>Clean the redis key namespace</p>
-<p>Parameters:</p>
-<p>key  - (string) - The key of the value you wish to clear (can use wildcard *)</p>
+### redisConnectionPool.shutdown()
+<p>Function: shutdown</p>
+<p>Drain the pool and close all connections to Redis.</p>
 
 **Kind**: instance method of [<code>RedisConnectionPool</code>](#RedisConnectionPool)  
+<a name="redisConnectionPoolFactory"></a>
+
+## redisConnectionPoolFactory()
+<p>Function: redisConnectionPoolFactory</p>
+<p>A high-level redis management object. It manages a number of connections in
+a pool, using them as needed and keeping all aspects of releasing active
+connections internal to the object, so the user does not need to worry about
+forgotten connections leaking memory and building up over time.</p>
+<p>Parameters:</p>
+<p>uid - (string) - Unique identifier to retrieve an existing instance from
+elsewhere in an application. If left undefined, one will
+be generated automatically and available via the <code>uid</code>
+property of the returned object.</p>
+<p>cfg - (object) - A series of configuration parameters to be optionally
+passed in and used during initialization of the object.</p>
+<p>cfg.max_clients - (number) - Max clients alive in the connection pool at
+once. (default: 30)</p>
+<p>cfg.redis - (object) - A redis config object</p>
+<p>Returns:</p>
+<p>A RedisConnectionPool object</p>
+
+**Kind**: global function  
