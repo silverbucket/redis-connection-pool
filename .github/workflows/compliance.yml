@@ -33,6 +33,8 @@ jobs:
         run: npm run build
       - name: Test
         run: npm run test
+      - name: Coverage
+        run: npm run coverage
 
   integration:
     runs-on: ubuntu-latest

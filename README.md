@@ -13,8 +13,6 @@ a number of connections in a pool, using them as needed and keeping all aspects
 of releasing active connections internal to the object, so the user does not
 need to worry about forgotten connections leaking resources.
 
-**NOTE** Version 2.x is a rewrite and not backward compatible, please re-read the documentation to update your code.
-
 ## Installation
 
 ```javascript
@@ -117,6 +115,10 @@ lpush(key, value)
 sendCommand(commandName, [args])
 ```
 
+* **shutdown**
+```javascript
+shutdown()
+```
 
 ## API Documentation
 node-redis-connection-pool uses jsdoc-to-markdown to generate the [API.md](API.md) from the source code.
