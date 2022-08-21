@@ -27,7 +27,7 @@
     "lint:fix": "npx eslint --fix src/",
     "lint": "npx eslint src/",
     "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts",
-    "integration": "yarn run build && jaribu",
+    "integration": "mocha -r ts-node/register src/index.integration.ts && yarn run build && mocha dist/index.integration.js",
     "doc": "jsdoc2md --files ./src/index.ts --configure ./jsdoc2md.json > ./API.md"
   },
   "dependencies": {
@@ -54,7 +54,6 @@
     "chai": "4.3.6",
     "eslint": "8.22.0",
     "eslint-plugin-security-node": "1.1.1",
-    "jaribu": "2.2.3",
     "jsdoc-babel": "0.5.0",
     "jsdoc-to-markdown": "7.1.1",
     "mocha": "10.0.0",

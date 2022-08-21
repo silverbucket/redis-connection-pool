@@ -1,5 +1,5 @@
-node-redis-connection-pool
-==========================
+redis-connection-pool
+=====================
 
 A node.js connection pool for Redis.
 
@@ -24,17 +24,25 @@ npm install redis-connection-pool
 ## Usage
 
 ```javascript
-var redisPool = require('redis-connection-pool')('myRedisPool', {
-    max_clients: 10, // defalut
+import redisPoolFactory from 'redis-connection-pool';
+const redisPool = await redisPoolFactory('myRedisPool', {
+    max_clients: 5, // default
     redis: {
-      host: '127.0.0.1',
-      port: 6379
+      url: 'redis://localhost:6379'
     }
   });
 
-redisPool.init();
 
 await redisPool.set('test-key', 'foobar');
+const foo = await redisPool.get('test-key');
+// returns 'foobar'
+```
+
+Or you can create a pool instance directly
+```javascript
+import RedisConnectionPool from 'redis-connection-pool';
+const redisPool = new RedisConnectionPool();
+await redisPool.init();
 ```
 
 ## Implemented methods
@@ -102,6 +110,11 @@ rpush(key, value)
   * **lpush**
 ```javascript
 lpush(key, value)
+```
+
+  * **sendCommand**
+```javascript
+sendCommand(commandName, [args])
 ```
 
 
