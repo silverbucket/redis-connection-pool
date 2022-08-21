@@ -27,7 +27,7 @@
     "lint:fix": "npx eslint --fix src/",
     "lint": "npx eslint src/",
     "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts",
-    "integration": "mocha -r ts-node/register src/index.integration.ts",
+    "integration": "mocha -r ts-node/register src/index.integration.ts && yarn run build && mocha dist/index.integration.js",
     "doc": "jsdoc2md --files ./src/index.ts --configure ./jsdoc2md.json > ./API.md"
   },
   "dependencies": {
