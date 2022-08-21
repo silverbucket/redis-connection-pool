@@ -1,6 +1,6 @@
 name: Integration
 
-on: [push]
+on: [pull_request]
 
 jobs:
   build:
@@ -11,13 +11,13 @@ jobs:
         redis-version: [4, 5]
 
     steps:
-      - - name: Git checkout
-          uses: actions/checkout@v1
+      - name: Git checkout
+        uses: actions/checkout@v1
 
-        - name: Use Node.js ${{ matrix.node-version }}
-          uses: actions/setup-node@v1
-          with:
-            node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
 
       - name: Start Redis v${{ matrix.redis-version }}
         uses: superchargejs/redis-github-action@1.1.0
