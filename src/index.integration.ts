@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import redisConnectionPoolFactory from './index';
+import redisConnectionPoolFactory, {RedisConnectionPool} from './index';
 
 const channel = 'redis-connection-pool-tests:';
 const uid = 'redisPoolTest1';
 
 describe('Redis Pool', () => {
-  let pool;
+  let pool: RedisConnectionPool;
   beforeEach(async () => {
     pool = await redisConnectionPoolFactory(uid,
       {

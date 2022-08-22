@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+//@ts-ignore
 import proxyquire from 'proxyquire';
 import * as sinon from 'sinon';
 

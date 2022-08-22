@@ -1,6 +1,6 @@
 {
   "name": "redis-connection-pool",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "a redis client connection pool",
   "license": "MIT",
   "private": false,
@@ -24,8 +24,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint:fix": "npx eslint --fix src/",
-    "lint": "npx eslint src/",
+    "lint:fix": "eslint --fix src/",
+    "lint": "eslint src/",
     "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts",
     "coverage": "c8 check-coverage --statements 70 --branches 90 --functions 60 --lines 70",
     "integration": "mocha -r ts-node/register src/index.integration.ts && yarn run build && mocha dist/index.integration.js",
@@ -42,6 +42,7 @@
     "@babel/preset-env": "7.18.10",
     "@babel/preset-typescript": "7.18.6",
     "@types/chai": "4.3.3",
+    "@types/debug": "^4.1.7",
     "@types/eslint": "8.4.6",
     "@types/generic-pool": "3.1.11",
     "@types/mocha": "9.1.1",
