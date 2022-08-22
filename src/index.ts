@@ -18,7 +18,6 @@ import {
   createClient,
   RedisClientOptions,
   RedisModules,
-  RedisScripts,
   RedisClientType
 } from 'redis';
 import {createPool, Pool}  from 'generic-pool';
@@ -28,7 +27,7 @@ const log = debug('redis-connection-pool');
 const connectionPools = new Map();
 
 export interface RedisConnectionPoolConfig {
-  max_clients?: number;
+  max_clients?: number
   perform_checks?: boolean;
   redis?: RedisClientOptions;
 }
@@ -86,7 +85,7 @@ export default async function redisConnectionPoolFactory(
 export class RedisConnectionPool {
   max_clients = 5;
   redis: RedisClientOptions;
-  pool: Pool<RedisClientType<RedisModules, RedisScripts>>;
+  pool: Pool<RedisClientType<RedisModules>>;
   private initializing = false;
 
   constructor(cfg: RedisConnectionPoolConfig = {}) {
@@ -167,8 +166,8 @@ export class RedisConnectionPool {
    *   key  - (string) - The prefix of the keys to return
    *
    */
-  async keys(key: string) {
-    return await this.singleCommand('KEYS', [key]);
+  async keys(key: string): Promise<Array<string>> {
+    return await this.singleCommand('KEYS', [key]) as Array<string>;
   }
 
   /**
@@ -200,8 +199,8 @@ export class RedisConnectionPool {
    * For eg:
    *  send_command('HSET', ['firstRedisKey', 'key1', 'Hello Redis'] )
    */
-  async sendCommand(command_name, args) {
-    return await this.singleCommand(command_name, args);
+  async sendCommand(command_name: string, args: Array<string>) {
+    return await this.singleCommand(command_name as FuncNameType, args);
   }
 
 
@@ -332,7 +331,7 @@ export class RedisConnectionPool {
    *   ttl  - (number) - optional TTL (Time to Live) in seconds
    *
    */
-  async set(key: string, data: string, ttl = 0) {
+  async set(key: string, data: any, ttl = 0) {
     const client = await this.pool.acquire();
     const res = client.SET(key, data, { "EX": ttl });
     await this.pool.release(client);
@@ -351,7 +350,7 @@ export class RedisConnectionPool {
    *   data  - (string) - Value to assign to hash
    *
    */
-  async hset(key: string, field: string, data: never) {
+  async hset(key: string, field: string, data: string) {
     const client = await this.pool.acquire();
     const res = client.HSET(key, field, data);
     await this.pool.release(client);
@@ -369,7 +368,7 @@ export class RedisConnectionPool {
    *   data  - (string) - Value to assign to the list
    *
    */
-  async rpush(key: string, data: never) {
+  async rpush(key: string, data: string) {
     const client = await this.pool.acquire();
     const res = client.RPUSH(key, data);
     await this.pool.release(client);
@@ -387,7 +386,7 @@ export class RedisConnectionPool {
    *   data  - (string) - Value to assign to the list
    *
    */
-  async lpush(key: string, data: never) {
+  async lpush(key: string, data: string) {
     const client = await this.pool.acquire();
     const res = client.LPUSH(key, data);
     await this.pool.release(client);
