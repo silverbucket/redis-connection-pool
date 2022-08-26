@@ -24,7 +24,7 @@
   },
   "scripts": {
     "release": "npm run lint && npm run test && npm run coverage && npm run build && npm run integration && npm run doc",
-    "build": "tsc",
+    "build": "tsc -v && tsc",
     "lint:fix": "eslint --fix src/",
     "lint": "eslint src/",
     "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts",
