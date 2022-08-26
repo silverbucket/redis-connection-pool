@@ -16,9 +16,7 @@
  */
 import {
   createClient,
-  RedisClientOptions,
-  RedisModules,
-  RedisClientType
+  RedisClientOptions, RedisClientType,
 } from 'redis';
 import {createPool, Pool}  from 'generic-pool';
 import debug from 'debug';
@@ -32,8 +30,16 @@ export interface RedisConnectionPoolConfig {
   redis?: RedisClientOptions;
 }
 
-type FuncNameType = 'HDEL' | 'DEL' | 'GET' | 'HGETALL' | 'TTL' | 'INCR' |
-  'BRPOP' | 'HGET' | 'BLPOP' | 'BRPOPLPUSH' | 'EXPIRE' | 'KEYS'
+type SingleCommandResult =
+  string | number | boolean | Buffer | { [x: string]: string | Buffer; } |
+  { key: string | Buffer; element: string | Buffer; } | (string | Buffer)[]
+
+/**
+ * List of redis commands which have been implemented by the RedisConnectionPool class
+ */
+type FuncNames = 'HDEL' | 'DEL' | 'GET' | 'HGETALL' | 'TTL' | 'INCR' |
+  'BRPOP' | 'HGET' | 'BLPOP' | 'EXPIRE' | 'KEYS';
+
 type IdentifierType = string;
 
 /**
@@ -85,7 +91,7 @@ export default async function redisConnectionPoolFactory(
 export class RedisConnectionPool {
   max_clients = 5;
   redis: RedisClientOptions;
-  pool: Pool<RedisClientType<RedisModules>>;
+  pool: Pool<RedisClientType>;
   private initializing = false;
 
   constructor(cfg: RedisConnectionPoolConfig = {}) {
@@ -93,7 +99,110 @@ export class RedisConnectionPool {
     this.redis = cfg.redis;
   }
 
-  async init() {
+  /**
+   * Execute a redis BLPOP command
+   *
+   * @param key - The list key
+   */
+  async blpop(key: string): Promise<{key: string, element: SingleCommandResult}> {
+    return await this.getFuncs('BLPOP', key);
+  }
+
+  /**
+   * Execute a redis BRPOP command
+   *
+   * @param key - The list key
+   */
+  async brpop(key: string): Promise<{key: string, element: SingleCommandResult}> {
+    return await this.getFuncs('BRPOP', key);
+  }
+
+  /**
+   * Execute a redis DEL command
+   *
+   * @param key - The key of the value you wish to delete
+   */
+  async del(key: string): Promise<number> {
+    return await this.singleCommand('DEL', [key]) as number;
+  }
+
+  /**
+   * Execute a redis EXPIRE command
+   *
+   * @param key - A key to assign value to
+   * @param ttl - TTL in seconds
+   */
+  async expire(key: string, ttl: number): Promise<number> {
+    return await this.singleCommand('EXPIRE', [key, ttl]) as number;
+  }
+
+  /**
+   * Execute a redis GET command
+   *
+   * @param key - The key of the value you wish to get
+   */
+  async get(key: string): Promise<string> {
+    return await this.getFuncs<string>('GET', key);
+  }
+
+  /**
+   * Execute a redis HDEL command
+   *
+   * @param key - The key of the value you wish to delete
+   * @param fields - Array of additional field names to be deleted
+   */
+  async hdel(key: string, fields: Array<string>): Promise<number> {
+    return await this.singleCommand('HDEL', [key].concat(fields)) as number;
+  }
+
+  /**
+   * Execute a redis HGET command
+   *
+   * @param key - The key of the hash you wish to get
+   * @param field - The field name to retrieve
+   */
+  async hget(key: string, field: string): Promise<string> {
+    return await this.getFuncs<string>('HGET', key, field);
+  }
+
+  /**
+   * Execute a redis HGETALL command
+   *
+   * @param key - The key of the hash you wish to get
+   */
+  async hgetall(key: string): Promise<{[index: string]: string}> {
+    return await this.getFuncs<{[index: string]: string}>('HGETALL', key);
+  }
+
+  /**
+   * Execute a redis HSET command
+   *
+   * @param key - A key to assign the hash to
+   * @param field - Name of the field to set
+   * @param data - Value to assign to hash
+   */
+  async hset(key: string, field: string, data: string): Promise<number> {
+    const client = await this.pool.acquire();
+    const res = client.HSET(key, field, data);
+    await this.pool.release(client);
+    return res;
+  }
+
+  /**
+   * Execute a redis INCR command
+   *
+   * @param key - A key whose value you wish to increment
+   */
+  async incr(key: string): Promise<number> {
+    return await this.getFuncs<number>('INCR', key);
+  }
+
+  /**
+   * Initializes the Redis connection pool, connecting to redis.
+   */
+  async init(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.pool = createPool({
       create: async () => {
         log('create');
@@ -128,265 +237,21 @@ export class RedisConnectionPool {
   }
 
   /**
-   * Function: expire
-   *
-   * Execute a redis EXPIRE command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - A key to assign value to
-   *   ttl   - (number) - TTL in seconds
-   *
-   */
-  async expire(key: string, ttl: number) {
-    return await this.singleCommand('EXPIRE', [key, ttl]);
-  }
-
-  /**
-   * Function: del
-   *
-   * Execute a redis DEL command
-   *
-   * Parameters:
-   *
-   *   key  - (string) - The key of the value you wish to delete
-   *
-   */
-  async del(key: string) {
-    return await this.singleCommand('DEL', [key]);
-  }
-
-  /**
-   * Function: keys
-   *
    * Execute a redis KEYS command
    *
-   * Parameters:
-   *
-   *   key  - (string) - The prefix of the keys to return
-   *
+   * @param key - The prefix of the keys to return
    */
   async keys(key: string): Promise<Array<string>> {
     return await this.singleCommand('KEYS', [key]) as Array<string>;
   }
 
   /**
-   * Function: hdel
-   *
-   * Execute a redis HDEL command
-   *
-   * Parameters:
-   *
-   *   key  - (string) - The key of the value you wish to delete
-   *   fields  - [string] - Array of field names to be deleted
-   *
-   */
-  async hdel(key: string, fields: Array<string>) {
-    return await this.singleCommand('HDEL', [key, fields]);
-  }
-
-  /**
-   * Function: sendCommand
-   *
-   * Sends an explicit command to the redis server. Helpful for new commands in redis
-   *   that aren't supported yet by this JS API.
-   *
-   * Parameters:
-   *
-   *   command_name  - (string) - The redis command to execute
-   *   args          - (array) - The arguments to the redis command
-   *
-   * For eg:
-   *  send_command('HSET', ['firstRedisKey', 'key1', 'Hello Redis'] )
-   */
-  async sendCommand(command_name: string, args: Array<string>) {
-    return await this.singleCommand(command_name as FuncNameType, args);
-  }
-
-
-  /**
-   * Function: ttl
-   *
-   * Execute a redis TTL command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - A key whose TTL(time-to-expire) has to be returned
-   *
-   */
-  async ttl(key: string) {
-    return await this.getFuncs('TTL', key);
-  }
-
-  /**
-   * Function: get
-   *
-   * Execute a redis GET command
-   *
-   * Parameters:
-   *
-   *   key  - (string) - The key of the value you wish to get
-   *
-   */
-  async get(key: string) {
-    return await this.getFuncs('GET', key);
-  }
-
-
-  /**
-   * Function: hget
-   *
-   * Execute a redis HGET command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - The key of the hash you wish to get
-   *   field - (string) - The field name to retrieve
-   *
-   */
-  async hget(key: string, field: string) {
-    return await this.getFuncs('HGET', key, field);
-  }
-
-  /**
-   * Function: hgetall
-   *
-   * Execute a redis HGETALL command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - The key of the hash you wish to get
-   *
-   */
-  async hgetall(key: string) {
-    return await this.getFuncs('HGETALL', key);
-  }
-
-  /**
-   * Function: blpop
-   *
-   * Execute a redis BLPOP command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - The list key
-   *
-   */
-  async blpop(key: string) {
-    return await this.getFuncs('BLPOP', key);
-  }
-
-  /**
-   * Function: brpop
-   *
-   * Execute a redis BRPOP command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - The list key
-   *
-   */
-  async brpop(key: string) {
-    return await this.getFuncs('BRPOP', key);
-  }
-
-  /**
-   * Function: brpoplpush
-   *
-   * Execute a redis BRPOPLPUSH command
-   *
-   * Parameters:
-   *
-   *   key1   - (string) - The pop list key
-   *   key2   - (string) - The push list key
-   *
-   */
-  async brpoplpush(key1: string, key2: string) {
-    return await this.getFuncs('BRPOPLPUSH', key1, key2);
-  }
-
-  /**
-   * Function: incr
-   *
-   * Execute a redis INCR command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - A key whose value you wish to increment
-   *
-   */
-  async incr(key: string) {
-    return await this.getFuncs('INCR', key);
-  }
-
-  /**
-   * Function: set
-   *
-   * Execute a redis SET command
-   *
-   * Parameters:
-   *
-   *   key  - (string) - A key to assign value to
-   *   data - (string) - Value to assign to key
-   *   ttl  - (number) - optional TTL (Time to Live) in seconds
-   *
-   */
-  async set(key: string, data: any, ttl = 0) {
-    const client = await this.pool.acquire();
-    const res = client.SET(key, data, { "EX": ttl });
-    await this.pool.release(client);
-    return res;
-  }
-
-  /**
-   * Function: hset
-   *
-   * Execute a redis HSET command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - A key to assign the hash to
-   *   field - (string) - Name of the field to set
-   *   data  - (string) - Value to assign to hash
-   *
-   */
-  async hset(key: string, field: string, data: string) {
-    const client = await this.pool.acquire();
-    const res = client.HSET(key, field, data);
-    await this.pool.release(client);
-    return res;
-  }
-
-  /**
-   * Function: rpush
-   *
-   * Execute a redis RPUSH command
-   *
-   * Parameters:
-   *
-   *   key   - (string) - The list key
-   *   data  - (string) - Value to assign to the list
-   *
-   */
-  async rpush(key: string, data: string) {
-    const client = await this.pool.acquire();
-    const res = client.RPUSH(key, data);
-    await this.pool.release(client);
-    return res;
-  }
-
-  /**
-   * Function: lpush
-   *
    * Execute a redis LPUSH command
    *
-   * Parameters:
-   *
-   *   key   - (string) - The list key
-   *   data  - (string) - Value to assign to the list
-   *
+   * @param key - The list key
+   * @param data - Value to assign to the list
    */
-  async lpush(key: string, data: string) {
+  async lpush(key: string, data: string): Promise<number> {
     const client = await this.pool.acquire();
     const res = client.LPUSH(key, data);
     await this.pool.release(client);
@@ -394,28 +259,80 @@ export class RedisConnectionPool {
   }
 
   /**
-   * Function: shutdown
+   * Execute a redis RPUSH command
    *
-   * Drain the pool and close all connections to Redis.
-   *
+   * @param key - The list key
+   * @param data - Value to assign to the list
    */
-  async shutdown() {
-    await this.pool.drain();
-    await this.pool.clear();
-  }
-
-  private async singleCommand(funcName: FuncNameType, functionParams: Array<any>) {
+  async rpush(key: string, data: string): Promise<number> {
     const client = await this.pool.acquire();
-    const res = await client[funcName](...(functionParams || []));
+    const res = client.RPUSH(key, data);
     await this.pool.release(client);
     return res;
   }
 
-  private async getFuncs(
-    funcName: FuncNameType,
+  /**
+   * Sends an explicit command to the redis server. Helpful for all the commands in redis
+   * that aren't supported natively by this pool API.
+   *
+   * @param command_name - Name of redis command to execute
+   * @param args - List of arguments for the redis command
+   *
+   * @example
+   *
+   *  sendCommand('ECHO', ['Hello Redis'] )
+   *
+   */
+  async sendCommand(command_name: string, args: Array<string>): Promise<SingleCommandResult> {
+    return await this.singleCommand(command_name as FuncNames, args);
+  }
+
+  /**
+   * Execute a redis SET command
+   *
+   * @param key - A key to assign value to
+   * @param data - Value to assign to key
+   * @param ttl - TTL (Time to Live) in seconds
+   */
+  async set(key: string, data: string|number, ttl = 0): Promise<string|null> {
+    const client = await this.pool.acquire();
+    const res = client.SET(key, data, { "EX": ttl });
+    await this.pool.release(client);
+    return res;
+  }
+
+  /**
+   * Drain the pool and close all connections to Redis.
+   */
+  async shutdown(): Promise<void> {
+    await this.pool.drain();
+    await this.pool.clear();
+  }
+
+  /**
+   * Execute a redis TTL command
+   *
+   * @param {string} key - A key whose TTL(time-to-expire) will be returned
+   */
+  async ttl(key: string): Promise<number> {
+    return await this.getFuncs<number>('TTL', key);
+  }
+
+  private async singleCommand(
+    funcName: FuncNames,
+    functionParams: Array<any> = []
+  ): Promise<SingleCommandResult> {
+    const client = await this.pool.acquire();
+    const res = await client[funcName](...functionParams);
+    await this.pool.release(client);
+    return res;
+  }
+
+  private async getFuncs<T>(
+    funcName: FuncNames,
     key: string,
     field: string | undefined = undefined
-  ) {
+  ): Promise<T> {
     const client = await this.pool.acquire();
     let res;
     if ((funcName === 'GET') || (funcName === 'HGETALL') ||
@@ -423,8 +340,6 @@ export class RedisConnectionPool {
       res = await client[funcName](key);
     } else if ((funcName === 'BLPOP') || (funcName === 'BRPOP')) {
       res = await client[funcName](key, 0);
-    } else if (funcName === 'BRPOPLPUSH') {
-      res = await client.BRPOPLPUSH(key, field, 0);
     } else if (funcName === 'HGET') {
       res = await client.HGET(key, field);
     }
