@@ -11,6 +11,7 @@ const clientFake = {
   HGETALL: sinon.stub(),
   HGET: sinon.stub(),
   HSET: sinon.stub(),
+  HDEL: sinon.stub(),
   GET: sinon.stub(),
   SET: sinon.stub(),
   DEL: sinon.stub(),
@@ -103,6 +104,13 @@ describe('redisConnectionPoolFactory', () => {
     clientFake.HGETALL.returns('yarg')
     expect(await pool.hgetall('identifier')).to.eql('yarg');
     sinon.assert.calledOnce(clientFake.HGETALL);
+  });
+
+  it('hdel', async () => {
+    clientFake.HDEL.returns(1);
+    expect(await pool.hdel('identifier', ['identifier 2'])).to.eql(1);
+    sinon.assert.calledOnce(clientFake.HDEL);
+    sinon.assert.calledWith(clientFake.HDEL, 'identifier', 'identifier 2')
   });
 
   it('rpush', async () => {
