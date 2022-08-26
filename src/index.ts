@@ -92,7 +92,7 @@ export default async function redisConnectionPoolFactory(
 export class RedisConnectionPool {
   max_clients = 5;
   redis: RedisClientOptions;
-  pool: Pool<RedisClientType<any>>;
+  pool: Pool<RedisClientType>;
   private initializing = false;
 
   constructor(cfg: RedisConnectionPoolConfig = {}) {
