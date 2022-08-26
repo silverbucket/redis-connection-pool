@@ -52,21 +52,21 @@ redisPool.shutdown();
 
 ## Implemented Redis methods
 
-* **del**
 * **blpop**
 * **brpop**
-* **brpoplpush**
+* **del**
 * **expire**
 * **get**
+* **hdel**
 * **hget**
 * **hgetall**
 * **hset**
-* **hdel**
 * **incr**
+* **keys**
 * **lpush**
 * **rpush**
-* **set**
 * **sendCommand**
+* **set**
 * **ttl**
 
 ## Additional methods
