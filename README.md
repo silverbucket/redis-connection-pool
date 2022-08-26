@@ -3,6 +3,8 @@ redis-connection-pool
 
 A node.js connection pool for Redis.
 
+https://silverbucket.github.io/redis-connection-pool
+
 [![Build Status](http://img.shields.io/travis/silverbucket/node-redis-connection-pool.svg?style=flat)](http://travis-ci.org/silverbucket/node-redis-connection-pool)
 [![license](https://img.shields.io/npm/l/redis-connection-pool.svg?style=flat)](https://npmjs.org/package/redis-connection-pool)
 [![downloads](http://img.shields.io/npm/dm/redis-connection-pool.svg?style=flat)](https://npmjs.org/package/redis-connection-pool)
@@ -74,7 +76,7 @@ redisPool.shutdown();
 
 
 ## API Documentation
-For the full documentation on the `RedisConnectionPool` class, see [API.md](API.md).
+For the full documentation on the `RedisConnectionPool` class, see https://silverbucket.github.io/redis-connection-pool/classes/RedisConnectionPool.html
 
 ## License
 
