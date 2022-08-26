@@ -16,8 +16,7 @@
  */
 import {
   createClient,
-  RedisClientOptions,
-  RedisClientType
+  RedisClientOptions, RedisClientType,
 } from 'redis';
 import {createPool, Pool}  from 'generic-pool';
 import debug from 'debug';
@@ -202,6 +201,8 @@ export class RedisConnectionPool {
    * Initializes the Redis connection pool, connecting to redis.
    */
   async init(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.pool = createPool({
       create: async () => {
         log('create');
