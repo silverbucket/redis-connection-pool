@@ -17,7 +17,6 @@
 import {
   createClient,
   RedisClientOptions,
-  RedisModules,
   RedisClientType
 } from 'redis';
 import {createPool, Pool}  from 'generic-pool';
@@ -93,7 +92,7 @@ export default async function redisConnectionPoolFactory(
 export class RedisConnectionPool {
   max_clients = 5;
   redis: RedisClientOptions;
-  pool: Pool<RedisClientType<RedisModules>>;
+  pool: Pool<RedisClientType<any>>;
   private initializing = false;
 
   constructor(cfg: RedisConnectionPoolConfig = {}) {
