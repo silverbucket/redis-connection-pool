@@ -1,7 +1,6 @@
 - name: Release Drafter
   uses: release-drafter/release-drafter@v5.20.1
 
-
 on:
   push:
     # branches to consider in the event; optional, defaults to all
