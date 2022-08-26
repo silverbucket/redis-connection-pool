@@ -2,6 +2,7 @@
   "name": "redis-connection-pool",
   "version": "4.0.0",
   "description": "a redis client connection pool",
+  "homepage": "https://silverbucket.github.io/redis-connection-pool",
   "license": "MIT",
   "private": false,
   "keywords": [
@@ -73,6 +74,5 @@
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/silverbucekt/node-redis-connection-pool/issues"
-  },
-  "homepage": "https://github.com/silverbucket/node-redis-connection-pool"
+  }
 }
