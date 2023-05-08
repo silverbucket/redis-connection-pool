@@ -6,12 +6,8 @@
     "moduleResolution": "node",
     "module": "commonjs",
     "target": "es6",
-    "lib": [
-      "esnext"
-    ],
-    "types": [
-      "node", "mocha"
-    ],
+    "lib": ["esnext"],
+    "types": ["node", "mocha"],
     "sourceMap": true,
     "declaration": true,
     "esModuleInterop": true,
@@ -29,13 +25,5 @@
     "sourceRoot": "/",
     "mapRoot": "/"
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "node_modules",
-    "dist",
-    "*.d.ts"
-  ]
+  "include": ["src"]
 }
