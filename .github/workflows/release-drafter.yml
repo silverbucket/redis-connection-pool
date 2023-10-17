@@ -1,5 +1,5 @@
 - name: Release Drafter
-  uses: release-drafter/release-drafter@v5.20.1
+  uses: release-drafter/release-drafter@v5.25.0
 
 on:
   push:
