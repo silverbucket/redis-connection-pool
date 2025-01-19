@@ -348,6 +348,6 @@ export class RedisConnectionPool {
       res = await client.HGET(key, field);
     }
     await this.pool.release(client);
-    return res;
+    return res as T;
   }
 }

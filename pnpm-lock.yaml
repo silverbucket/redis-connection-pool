@@ -37,8 +37,8 @@ importers:
         specifier: 17.0.23
         version: 17.0.23
       '@types/proxyquire':
-        specifier: 1.3.28
-        version: 1.3.28
+        specifier: 1.3.31
+        version: 1.3.31
       '@types/sinon':
         specifier: 10.0.13
         version: 10.0.13
@@ -241,8 +241,8 @@ packages:
   '@types/node@17.0.23':
     resolution: {integrity: sha512-UxDxWn7dl97rKVeVS61vErvw086aCYhDLyvRQZ5Rk65rZKepaFdm53GeqXaKBuOhED4e9uWq34IC3TdSdJJ2Gw==}
 
-  '@types/proxyquire@1.3.28':
-    resolution: {integrity: sha512-SQaNzWQ2YZSr7FqAyPPiA3FYpux2Lqh3HWMZQk47x3xbMCqgC/w0dY3dw9rGqlweDDkrySQBcaScXWeR+Yb11Q==}
+  '@types/proxyquire@1.3.31':
+    resolution: {integrity: sha512-uALowNG2TSM1HNPMMOR0AJwv4aPYPhqB0xlEhkeRTMuto5hjoSPZkvgu1nbPUkz3gEPAHv4sy4DmKsurZiEfRQ==}
 
   '@types/sinon@10.0.13':
     resolution: {integrity: sha512-UVjDqJblVNQYvVNUsj0PuYYw0ELRmgt1Nt5Vk0pT5f16ROGfcKJY8o1HVuMOJOpD727RrGB9EGvoaTQE5tgxZQ==}
@@ -1196,7 +1196,7 @@ snapshots:
 
   '@types/node@17.0.23': {}
 
-  '@types/proxyquire@1.3.28': {}
+  '@types/proxyquire@1.3.31': {}
 
   '@types/sinon@10.0.13':
     dependencies:

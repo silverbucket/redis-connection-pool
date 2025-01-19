@@ -1,10 +1,12 @@
 import { expect } from 'chai';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-expect-error
 import proxyquire from 'proxyquire';
 import * as sinon from 'sinon';
 
-const clientFake = {
+type ClientObjFake = {
+  [key: string]: sinon.SinonStub;
+}
+
+const clientFake: ClientObjFake = {
   BLPOP: sinon.stub(),
   BRPOP: sinon.stub(),
   LPUSH: sinon.stub(),
@@ -21,7 +23,7 @@ const clientFake = {
   keys: sinon.stub()
 }
 
-function createPoolFake(factory, opts) {
+function createPoolFake() {
   return {
     init: sinon.stub(),
     acquire: async () => {
