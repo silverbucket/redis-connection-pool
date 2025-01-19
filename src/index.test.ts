@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-//@ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-expect-error
 import proxyquire from 'proxyquire';
 import * as sinon from 'sinon';
 
@@ -44,7 +45,7 @@ const RedisConnectionPool = NRCPMod.RedisConnectionPool;
 const redisConnectionPoolFactory = NRCPMod.default;
 
 describe('redisConnectionPoolFactory', () => {
-  let pool;
+  let pool: any;
 
   beforeEach(async () => {
     pool = await redisConnectionPoolFactory('foo', {
