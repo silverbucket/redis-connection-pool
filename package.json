@@ -29,9 +29,9 @@
     "build": "tsc -v && tsc",
     "lint:fix": "eslint --fix .",
     "lint": "eslint .",
-    "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts",
-    "coverage": "c8 check-coverage --statements 70 --branches 90 --functions 60 --lines 70",
-    "integration": "mocha -r ts-node/register src/index.integration.ts && pnpm run build && mocha dist/index.integration.js",
+    "test": "NODE_OPTIONS='--import=tsx' c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha src/*.test.ts",
+    "coverage": "c8 check-coverage --statements 88 --branches 88 --functions 82 --lines 88",
+    "integration": "NODE_OPTIONS='--import=tsx' mocha src/index.integration.ts && pnpm run build && mocha dist/index.integration.js",
     "doc": "typedoc ./src/index.ts"
   },
   "dependencies": {
@@ -57,6 +57,7 @@
     "prettier": "^3.4.2",
     "proxyquire": "2.1.3",
     "sinon": "19.0.2",
+    "tsx": "^4.19.2",
     "typedoc": "0.27.6",
     "typescript": "5.7.3",
     "typescript-eslint": "^8.20.0"
