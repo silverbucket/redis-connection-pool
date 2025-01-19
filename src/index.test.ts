@@ -1,9 +1,12 @@
 import { expect } from 'chai';
-//@ts-ignore
 import proxyquire from 'proxyquire';
 import * as sinon from 'sinon';
 
-const clientFake = {
+type ClientObjFake = {
+  [key: string]: sinon.SinonStub;
+}
+
+const clientFake: ClientObjFake = {
   BLPOP: sinon.stub(),
   BRPOP: sinon.stub(),
   LPUSH: sinon.stub(),
@@ -20,7 +23,7 @@ const clientFake = {
   keys: sinon.stub()
 }
 
-function createPoolFake(factory, opts) {
+function createPoolFake() {
   return {
     init: sinon.stub(),
     acquire: async () => {
@@ -44,7 +47,7 @@ const RedisConnectionPool = NRCPMod.RedisConnectionPool;
 const redisConnectionPoolFactory = NRCPMod.default;
 
 describe('redisConnectionPoolFactory', () => {
-  let pool;
+  let pool: any;
 
   beforeEach(async () => {
     pool = await redisConnectionPoolFactory('foo', {

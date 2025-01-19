@@ -5,42 +5,44 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 18 ]
+        node-version: [ 22 ]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - run: npm install -g pnpm@9.15.4
       - name: Install
-        run: npm install
+        run: pnpm install
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 14, 16, 18 ]
+        node-version: [ 22 ]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - run: npm install -g pnpm@9.15.4
       - name: Install
-        run: npm install
+        run: pnpm install
       - name: Build
-        run: npm run build
+        run: pnpm run build
       - name: Test
-        run: npm run test
+        run: pnpm run test
       - name: Coverage
-        run: npm run coverage
+        run: pnpm run coverage
 
   integration:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 14, 16, 18 ]
+        node-version: [ 22 ]
         redis-version: [ 4, 5 ]
 
     steps:
@@ -52,11 +54,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - run: npm install -g pnpm@9.15.4
+
       - name: Start Redis v${{ matrix.redis-version }}
         uses: superchargejs/redis-github-action@1.4.0
         with:
           redis-version: ${{ matrix.redis-version }}
 
-      - run: npm install
-      - run: npm run build
-      - run: npm run integration
+      - run: pnpm install
+      - run: pnpm run build
+      - run: pnpm run integration
