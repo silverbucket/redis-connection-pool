@@ -5,6 +5,9 @@
   "homepage": "https://silverbucket.github.io/redis-connection-pool",
   "license": "MIT",
   "packageManager": "pnpm@9.15.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "private": false,
   "keywords": [
     "redis",
