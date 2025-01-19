@@ -320,10 +320,10 @@ export class RedisConnectionPool {
 
   private async singleCommand(
     funcName: FuncNames,
-    functionParams: Array<any> = []
+    functionParams: Array<never|string|number> = []
   ): Promise<SingleCommandResult> {
     const client = await this.pool.acquire();
-    const res = await client[funcName](...functionParams);
+    const res = await client[funcName](...functionParams as Array<never>);
     await this.pool.release(client);
     return res;
   }
