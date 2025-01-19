@@ -16,7 +16,7 @@
  */
 import {
   createClient,
-  RedisClientOptions, RedisClientType,
+  RedisClientOptions, RedisClientType, type SetOptions
 } from 'redis';
 import {createPool, Pool}  from 'generic-pool';
 import debug from 'debug';
@@ -294,9 +294,13 @@ export class RedisConnectionPool {
    * @param data - Value to assign to key
    * @param ttl - TTL (Time to Live) in seconds
    */
-  async set(key: string, data: string|number, ttl = 0): Promise<string|null> {
+  async set(key: string, data: string|number, ttl?: number): Promise<string|null> {
     const client = await this.pool.acquire();
-    const res = client.SET(key, data, { "EX": ttl });
+    const opts: SetOptions = {};
+    if (ttl) {
+      opts["EX"] = ttl;
+    }
+    const res = client.SET(key, data, opts);
     await this.pool.release(client);
     return res;
   }
