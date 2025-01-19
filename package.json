@@ -31,7 +31,7 @@
     "lint": "eslint src/",
     "test": "c8 -x src/bootstrap -x \"src/**/*.test.*\" mocha -r ts-node/register src/*.test.ts",
     "coverage": "c8 check-coverage --statements 70 --branches 90 --functions 60 --lines 70",
-    "integration": "mocha -r ts-node/register src/index.integration.ts && yarn run build && mocha dist/index.integration.js",
+    "integration": "mocha -r ts-node/register src/index.integration.ts && pnpm run build && mocha dist/index.integration.js",
     "doc": "typedoc ./src/index.ts"
   },
   "dependencies": {
