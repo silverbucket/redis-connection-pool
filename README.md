@@ -1,6 +1,8 @@
 redis-connection-pool
 =====================
 
+:warning: This repo is deprecated and no longer maintained.
+
 A node.js connection pool for Redis.
 
 https://silverbucket.github.io/redis-connection-pool
